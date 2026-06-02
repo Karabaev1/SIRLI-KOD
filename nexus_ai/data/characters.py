@@ -3,12 +3,17 @@ ISHROQAI-45xFA — Character configurations
 ==========================================
 Edit this file to customize operator names and greetings for each character.
 
+MESSAGE_TRIGGER_COUNT — after this many user messages, DARK/CLEAR WEB prompt appears.
+Counter resets to 0 after each trigger.
+
 Launch with:
   python main.py umid      ← Umid session
   python main.py ali       ← Ali session
   python main.py sardor    ← etc.
   python main.py           ← default (anonymous)
 """
+
+MESSAGE_TRIGGER_COUNT = 5
 
 CHARACTERS = {
 

@@ -7,7 +7,7 @@ from ui.chat_screen import ChatScreen
 from ui.virtual_world import VirtualWorldScreen
 from data.dialogue import VIRTUAL_SEQUENCES
 from data.qa_scripts import QA_SCRIPTS
-from data.characters import CHARACTERS
+from data.characters import CHARACTERS, MESSAGE_TRIGGER_COUNT
 
 AI_NAME = "ISHROQAI-45xFA"
 
@@ -53,6 +53,7 @@ class MainWindow(QMainWindow):
         self.chat_screen.user_message.connect(self._on_user_message)
         self.chat_screen.action_choice.connect(self._on_action_choice)
 
+        self._message_count = 0
         self.stack.setCurrentIndex(0)
 
     # ── Window ────────────────────────────────────────────────────────────────
@@ -107,7 +108,11 @@ class MainWindow(QMainWindow):
     # ── User message ──────────────────────────────────────────────────────────
 
     def _on_user_message(self, text):
-        pass
+        self._message_count += 1
+        if self._message_count >= MESSAGE_TRIGGER_COUNT:
+            self._message_count = 0
+            self.chat_screen.enable_input(False)
+            self.chat_screen.show_action_buttons()
 
     def _find_answer(self, text):
         text_lower = text.lower().strip()
@@ -131,8 +136,12 @@ class MainWindow(QMainWindow):
         sequence = VIRTUAL_SEQUENCES.get(seq_key, [])
         self.chat_screen.start_inline_terminal(
             sequence,
-            on_complete=lambda: self.chat_screen.enable_input(True)
+            on_complete=self._on_terminal_complete
         )
+
+    def _on_terminal_complete(self):
+        self._message_count = 0
+        self.chat_screen.enable_input(True)
 
     # ── Keyboard ──────────────────────────────────────────────────────────────
 
