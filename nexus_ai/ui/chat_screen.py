@@ -1,10 +1,25 @@
 """Main chat interface — NEXUS AI matrix style"""
+import re
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QScrollArea, QPushButton, QFrame, QSizePolicy, QLineEdit, QTextEdit
 )
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QColor, QPainter, QFont, QTextCharFormat, QTextCursor
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QUrl
+from PyQt6.QtGui import QColor, QPainter, QFont, QTextCharFormat, QTextCursor, QDesktopServices
+
+_URL_RE = re.compile(r'(https?://\S+)')
+
+def _linkify(text):
+    parts = _URL_RE.split(text)
+    result = []
+    for i, part in enumerate(parts):
+        if i % 2 == 0:
+            result.append(part.replace('\n', '<br>'))
+        else:
+            result.append(
+                f'<a href="{part}" style="color:#00DDFF;text-decoration:underline;">{part}</a>'
+            )
+    return ''.join(result)
 
 
 # ── Small helper widgets ──────────────────────────────────────────────────────
@@ -36,7 +51,9 @@ class MessageBubble(QLabel):
     def __init__(self, text, is_ai=True, parent=None):
         super().__init__(parent)
         self.setWordWrap(True)
-        self.setText(text)
+        self.setOpenExternalLinks(True)
+        self.setTextFormat(Qt.TextFormat.RichText)
+        self.setText(_linkify(text))
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         if is_ai:
             self.setStyleSheet("""
