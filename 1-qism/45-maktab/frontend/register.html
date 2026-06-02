@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ro'yxatdan o'tish — 45-sonli Maktab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-page">
+
+<div class="auth-box">
+  <div class="auth-logo">
+    <div class="badge">45</div>
+    <h2>Ro'yxatdan o'tish</h2>
+    <p>Yangi o'qituvchi akkaunti yaratish</p>
+  </div>
+
+  <div id="alertBox" class="alert"></div>
+
+  <form id="regForm">
+    <div class="form-group">
+      <label for="full_name">To'liq ismi-sharif</label>
+      <input type="text" id="full_name" placeholder="Familiya Ism Otasining ismi" required />
+    </div>
+    <div class="form-group">
+      <label for="username">Foydalanuvchi nomi</label>
+      <input type="text" id="username" placeholder="Masalan: azimov" autocomplete="username" required />
+    </div>
+    <div class="form-group">
+      <label for="subject">Fan</label>
+      <select id="subject" required>
+        <option value="" disabled selected>Fanni tanlang</option>
+        <option>Matematika</option>
+        <option>Fizika</option>
+        <option>Kimyo</option>
+        <option>Biologiya</option>
+        <option>Informatika</option>
+        <option>Ingliz tili</option>
+        <option>Ona tili</option>
+        <option>Tarix</option>
+        <option>Geografiya</option>
+        <option>Jismoniy tarbiya</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="password">Parol</label>
+      <input type="password" id="password" placeholder="Kamida 6 ta belgi" autocomplete="new-password" required minlength="6" />
+    </div>
+    <button type="submit" class="btn-submit" id="submitBtn">Ro'yxatdan o'tish</button>
+  </form>
+
+  <div class="auth-footer">
+    Akkountingiz bormi? <a href="login.html">Kirish</a>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+
+document.getElementById('regForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const alertBox = document.getElementById('alertBox');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span>Yuklanmoqda...';
+  alertBox.style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name: document.getElementById('full_name').value.trim(),
+        username:  document.getElementById('username').value.trim(),
+        subject:   document.getElementById('subject').value,
+        password:  document.getElementById('password').value,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || 'Xatolik yuz berdi');
+    }
+
+    alertBox.className = 'alert alert-success';
+    alertBox.textContent = "Muvaffaqiyatli ro'yxatdan o'tdingiz! Kirish sahifasiga o'tmoqdasiz...";
+    alertBox.style.display = 'block';
+
+    setTimeout(() => { window.location.href = 'login.html'; }, 1800);
+  } catch (err) {
+    alertBox.className = 'alert alert-error';
+    alertBox.textContent = err.message;
+    alertBox.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = "Ro'yxatdan o'tish";
+  }
+});
+</script>
+
+</body>
+</html>

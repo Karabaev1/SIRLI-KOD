@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=NEXUS AI
+Comment=Neural EXploit Unified System
+Exec=python3 /home/saadiy/Documents/sirli_kod/nexus_ai/main.py
+Icon=utilities-terminal
+Terminal=false
+Categories=Utility;Security;
+StartupNotify=true

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirish — 45-sonli Maktab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-page">
+
+<div class="auth-box">
+  <div class="auth-logo">
+    <div class="badge">45</div>
+    <h2>45-sonli Maktab</h2>
+    <p>O'qituvchilar tizimiga kirish</p>
+  </div>
+
+  <div id="alertBox" class="alert alert-error"></div>
+
+  <form id="loginForm">
+    <div class="form-group">
+      <label for="username">Foydalanuvchi nomi</label>
+      <input type="text" id="username" placeholder="Loginni kiriting" autocomplete="username" required />
+    </div>
+    <div class="form-group">
+      <label for="password">Parol</label>
+      <input type="password" id="password" placeholder="Parolni kiriting" autocomplete="current-password" required />
+    </div>
+    <button type="submit" class="btn-submit" id="submitBtn">Kirish</button>
+  </form>
+
+  <div class="auth-footer">
+    Akkauntingiz yo'qmi? <a href="register.html">Ro'yxatdan o'tish</a>
+  </div>
+  <div class="auth-footer" style="margin-top:8px;">
+    <a href="index.html" style="color:#6b7280;">← Asosiy sahifa</a>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const alert = document.getElementById('alertBox');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span>Yuklanmoqda...';
+  alert.style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || 'Xatolik yuz berdi');
+    }
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('teacher', JSON.stringify(data.teacher));
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    alert.textContent = err.message;
+    alert.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Kirish';
+  }
+});
+</script>
+
+</body>
+</html>

