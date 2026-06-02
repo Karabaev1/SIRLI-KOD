@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
         if self._message_count >= MESSAGE_TRIGGER_COUNT:
             self._message_count = 0
             self.chat_screen.enable_input(False)
-            self.chat_screen.show_action_buttons()
+            QTimer.singleShot(7000, self.chat_screen.show_action_buttons)
 
     def _find_answer(self, text):
         text_lower = text.lower().strip()
