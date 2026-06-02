@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ISHROQ AI — Hacker AI Interface"""
+"""ISHROQAI-45xFA — Hacker AI Interface"""
 import sys
 import os
 
@@ -14,7 +14,7 @@ from ui.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    app.setApplicationName("ISHROQ AI")
+    app.setApplicationName("ISHROQAI-45xFA")
     app.setStyle('Fusion')
 
     # Qahramonni argumentdan olish: python main.py umid

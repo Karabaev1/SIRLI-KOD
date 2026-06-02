@@ -6,7 +6,7 @@ Ssenariy asosida dialog tizimi
 # Virtual world sequences - terminal animation scriptlari
 VIRTUAL_SEQUENCES = {
     'darknet_hack': [
-        (">>> ISHROQ AI PROTOCOL ACTIVATED", 0.05),
+        (">>> ISHROQAI-45xFA PROTOCOL ACTIVATED", 0.05),
         (">>> Onion routing initialized...", 0.05),
         (">>> TOR circuit: [##########] 100%", 0.04),
         ("", 0.02),
@@ -40,7 +40,7 @@ VIRTUAL_SEQUENCES = {
         (">>> Returning to base...", 0.04),
     ],
     'cleannet_hack': [
-        (">>> ISHROQ AI ETHICAL PROTOCOL ACTIVATED", 0.05),
+        (">>> ISHROQAI-45xFA ETHICAL PROTOCOL ACTIVATED", 0.05),
         (">>> VPN tunnel: [##########] 100%", 0.04),
         ("", 0.02),
         (">>> Authorized pentest target confirmed", 0.05),
@@ -66,7 +66,7 @@ VIRTUAL_SEQUENCES = {
         (">>> Returning to base...", 0.04),
     ],
     'network_scan': [
-        (">>> ISHROQ AI RECON MODE", 0.05),
+        (">>> ISHROQAI-45xFA RECON MODE", 0.05),
         (">>> Scanning local network: 192.168.1.0/24", 0.04),
         (">>> Nmap stealth scan: -sS -O -sV", 0.04),
         ("", 0.02),

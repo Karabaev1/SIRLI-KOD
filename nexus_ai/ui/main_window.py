@@ -9,14 +9,14 @@ from data.dialogue import VIRTUAL_SEQUENCES
 from data.qa_scripts import QA_SCRIPTS
 from data.characters import CHARACTERS
 
-AI_NAME = "ISHROQ AI"
+AI_NAME = "ISHROQAI-45xFA"
 
 DEFAULT_GREETING = (
-    'Identifikatsiya tasdiqlandi.\n\n'
-    'Salom.\n'
-    'Men barcha savollarga va hacking qilishga\n'
-    'yordam beruvchi sun\'iy intellektman.\n\n'
-    'Tayyor. Buyruqlaringizni kuting.'
+    'Identity confirmed.\n\n'
+    'Hello.\n'
+    'I am an artificial intelligence that assists\n'
+    'with all queries and hacking operations.\n\n'
+    'Ready. Awaiting your commands.'
 )
 
 
@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
             ('.', 700, False),
             ('. .', 700, False),
             ('. . .', 900, False),
-            ('Foydalanuvchi identifikatsiyasi tekshirilmoqda...', 0, True),
+            ('Verifying user identity...', 0, True),
         ]
         self._play_step(steps, 0)
 
@@ -107,20 +107,7 @@ class MainWindow(QMainWindow):
     # ── User message ──────────────────────────────────────────────────────────
 
     def _on_user_message(self, text):
-        self.chat_screen.enable_input(False)
-        answer = self._find_answer(text)
-        if answer:
-            self.chat_screen.add_ai_message(
-                answer,
-                with_typing=True,
-                callback=lambda: self.chat_screen.show_action_buttons()
-            )
-        else:
-            self.chat_screen.add_ai_message(
-                'Buyruq aniqlanmadi.\nQayta urinib ko\'ring yoki boshqa so\'z ishlating.',
-                with_typing=True,
-                callback=lambda: self.chat_screen.enable_input(True)
-            )
+        pass
 
     def _find_answer(self, text):
         text_lower = text.lower().strip()
@@ -134,10 +121,10 @@ class MainWindow(QMainWindow):
 
     def _on_action_choice(self, which):
         if which == 'dark':
-            label = ">> DARK WEB — Anonim yo'l tanlandi"
+            label = ">> DARK WEB — Anonymous path selected"
             seq_key = 'darknet_hack'
         else:
-            label = ">> CLEAR WEB — Avtorizatsiyalangan yo'l"
+            label = ">> CLEAR WEB — Authorized path"
             seq_key = 'cleannet_hack'
 
         self.chat_screen.add_user_message(label)

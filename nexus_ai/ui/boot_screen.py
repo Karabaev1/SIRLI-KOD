@@ -79,7 +79,7 @@ class BootScreen(QWidget):
         "BIOS v3.14 — System check...",
         "CPU: Intel Core i7-13700K [OK]",
         "RAM: 32GB DDR5 [OK]",
-        "ISHROQ AI kernel loading...",
+        "ISHROQAI-45xFA kernel loading...",
         "Neural network: initializing...",
         "Encryption module: AES-256 [ACTIVE]",
         "TOR client: connecting...",
@@ -87,7 +87,7 @@ class BootScreen(QWidget):
         "Proxy chains: 7 hops [READY]",
         "Database: 2.4TB encrypted [MOUNTED]",
         "User identity: VERIFIED",
-        "ISHROQ AI v1.0 — ONLINE",
+        "ISHROQAI-45xFA v1.0 — ONLINE",
     ]
 
     def __init__(self, ai_name="ISHROQ AI", parent=None):

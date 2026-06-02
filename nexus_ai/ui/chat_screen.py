@@ -100,7 +100,7 @@ class ActionButtonsWidget(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(20, 20, 20, 20)
 
-        label = QLabel("< Yo'nalishni tanlang >")
+        label = QLabel("< SELECT DIRECTION >")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setStyleSheet("""
             color: #007A22;
@@ -416,7 +416,7 @@ class ChatScreen(QWidget):
         input_layout.setSpacing(10)
 
         self.text_input = QLineEdit()
-        self.text_input.setPlaceholderText("> Xabar yozing...")
+        self.text_input.setPlaceholderText("> Type a message...")
         self.text_input.setEnabled(False)
         self.text_input.setStyleSheet("""
             QLineEdit {
