@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=NEXUS AI
-Comment=Neural EXploit Unified System
+Name=ISHROQAI-45xFA
+Comment=Advanced Intelligence Assistant
 Exec=python3 /home/saadiy/Documents/sirli_kod/nexus_ai/main.py
-Icon=utilities-terminal
+Icon=/home/saadiy/Documents/sirli_kod/1-qism/ISHROQAI/icon.png
 Terminal=false
 Categories=Utility;Security;
 StartupNotify=true
