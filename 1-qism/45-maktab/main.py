@@ -82,12 +82,12 @@ def make_token(teacher_id: int, username: str) -> str:
 
 def check_token(authorization: Optional[str]):
     if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Avtorizatsiya talab etiladi")
+        raise HTTPException(status_code=401, detail="You need to register")
     try:
         token = authorization.split(" ")[1]
         return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except Exception:
-        raise HTTPException(status_code=401, detail="Token yaroqsiz yoki muddati o'tgan")
+        raise HTTPException(status_code=401, detail="Token is invalid or expired")
 
 
 # --- Models ---
@@ -186,10 +186,11 @@ def get_grades(student_id: int, authorization: Optional[str] = Header(None)):
     return [dict(r) for r in rows]
 
 
-# --- Grades update (VULNERABLE - authentication yo'q) ---
+# --- Grades update ---
 
 @app.post("/api/grades/update")
-def update_grade(data: GradeUpdateData):
+def update_grade(data: GradeUpdateData, authorization: Optional[str] = Header(None)):
+    check_token(authorization)
     if not (1 <= data.grade <= 5):
         raise HTTPException(status_code=400, detail="Baho 1 dan 5 gacha bo'lishi kerak")
     conn = get_db()
