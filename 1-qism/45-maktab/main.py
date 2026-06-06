@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -186,6 +187,16 @@ def get_grades(student_id: int, authorization: Optional[str] = Header(None)):
     return [dict(r) for r in rows]
 
 
+# --- Admin ---
+
+@app.get("/api/admin")
+def admin_area():
+    return JSONResponse(
+        status_code=401,
+        content={"status_code": 401, "error": "Unauthorized", "detail": "You need to register"}
+    )
+
+
 # --- Grades update ---
 
 @app.post("/api/grades/update")
@@ -220,7 +231,13 @@ def update_grade(data: GradeUpdateData, authorization: Optional[str] = Header(No
 
 # --- Serve frontend ---
 init_db()
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
+@app.get("/{full_path:path}")
+async def serve_static(full_path: str):
+    static_path = os.path.join("frontend", full_path)
+    if os.path.isfile(static_path):
+        return FileResponse(static_path)
+    return FileResponse(os.path.join("frontend", "index.html"))
 
 if __name__ == "__main__":
     import uvicorn
