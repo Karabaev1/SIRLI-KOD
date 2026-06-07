@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BREACH TERMINAL v2.4</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #00ff41;
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: #0a0a0a;
+      border-bottom: 1px solid #1a1a1a;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .topbar-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      color: #00ff41;
+      letter-spacing: 3px;
+    }
+
+    .topbar-status {
+      font-size: 11px;
+      color: #555;
+      display: flex;
+      gap: 24px;
+    }
+
+    .topbar-status span { color: #00ff41; }
+
+    .btn-start {
+      background: transparent;
+      border: 1.5px solid #00ff41;
+      color: #00ff41;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      padding: 6px 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all .2s;
+    }
+    .btn-start:hover {
+      background: #00ff41;
+      color: #000;
+    }
+    .btn-start.running {
+      border-color: #ff3333;
+      color: #ff3333;
+      animation: blink-btn .8s infinite;
+    }
+    @keyframes blink-btn {
+      0%,100% { opacity: 1; }
+      50%      { opacity: .5; }
+    }
+
+    /* ── MAIN 3-COL ── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ══════════════════════════════
+       LEFT — BRUTE FORCE TERMINAL
+    ══════════════════════════════ */
+    .panel-left {
+      width: 33.33%;
+      border-right: 1px solid #111;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 14px;
+      gap: 10px;
+    }
+
+    .term-header {
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #00ff41;
+      border-bottom: 1px solid #1a3a1a;
+      padding-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .blink { animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* target info */
+    .target-box {
+      background: #050f05;
+      border: 1px solid #1a3a1a;
+      padding: 10px 12px;
+      font-size: 11px;
+      line-height: 1.9;
+    }
+    .target-box .lbl { color: #3a7a3a; }
+    .target-box .val { color: #00ff41; }
+    .target-box .val.hi { color: #ffdd00; }
+
+    /* module boxes */
+    .module {
+      background: #050f05;
+      border: 1px solid #1a3a1a;
+      padding: 8px 12px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mod-title {
+      font-size: 10px;
+      color: #3a7a3a;
+      letter-spacing: 1.5px;
+      border-bottom: 1px solid #112011;
+      padding-bottom: 4px;
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .mod-title .active-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #555;
+      display: inline-block;
+      margin-top: 1px;
+    }
+    .mod-title .active-dot.on { background: #00ff41; animation: pulse-dot 1s infinite; }
+    @keyframes pulse-dot {
+      0%,100% { box-shadow: 0 0 0 0 rgba(0,255,65,.5); }
+      50%      { box-shadow: 0 0 0 4px rgba(0,255,65,0); }
+    }
+
+    .pass-line {
+      font-size: 12px;
+      color: #00cc33;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .pass-line .attempt-num { color: #1a5a1a; margin-right: 6px; }
+    .pass-line.fail { color: #cc2222; }
+    .pass-line.try  { color: #00ff41; }
+
+    .counter-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #3a7a3a;
+      margin-top: 2px;
+    }
+    .counter-row .num { color: #00ff41; font-size: 13px; }
+
+    /* progress bar */
+    .prog-wrap {
+      height: 4px;
+      background: #0a200a;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .prog-fill {
+      height: 100%;
+      background: #00ff41;
+      border-radius: 2px;
+      transition: width .3s linear;
+    }
+    .prog-fill.red   { background: #ff3333; }
+    .prog-fill.yellow { background: #ffdd00; }
+
+    /* log scroll */
+    .log-scroll {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+    .log-line {
+      font-size: 10px;
+      line-height: 1.7;
+      color: #2a6a2a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .log-line .ts   { color: #1a4a1a; }
+    .log-line.warn  { color: #cc7700; }
+    .log-line.error { color: #cc2222; }
+    .log-line.ok    { color: #00ff41; }
+
+    /* ══════════════════════
+       MIDDLE — EMPTY
+    ══════════════════════ */
+    .panel-mid {
+      width: 33.33%;
+      border-right: 1px solid #111;
+    }
+
+    /* ══════════════════════
+       RIGHT — TARGET CARD
+    ══════════════════════ */
+    .panel-right {
+      width: 33.33%;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 22px;
+      gap: 16px;
+      overflow-y: auto;
+      background: #000;
+    }
+
+    .r-header {
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #444;
+      border-bottom: 1px solid #222;
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .r-status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #222;
+      display: inline-block;
+    }
+    .r-status-dot.live {
+      background: #ff3333;
+      animation: pulse-dot 1s infinite;
+    }
+
+    .r-name-block {
+      border-left: 3px solid #fff;
+      padding: 10px 0 10px 18px;
+    }
+
+    .r-label {
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .r-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: 1px;
+    }
+
+    .r-divider {
+      height: 1px;
+      background: #1a1a1a;
+    }
+
+    .r-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .r-field-label {
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .r-field-value {
+      font-size: 16px;
+      color: #fff;
+      font-weight: 500;
+      letter-spacing: .5px;
+    }
+
+    .r-field-value.mono {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+
+    .r-field-value.big {
+      font-size: 22px;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+    }
+
+    /* Visa card widget */
+    .visa-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .visa-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .visa-chip {
+      width: 32px;
+      height: 24px;
+      background: linear-gradient(135deg, #c8a951, #e8c971);
+      border-radius: 4px;
+    }
+
+    .visa-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+      font-style: italic;
+    }
+
+    .visa-number {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      color: #fff;
+      letter-spacing: 4px;
+      text-align: center;
+    }
+
+    .visa-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .visa-holder {
+      font-size: 11px;
+      color: #aaa;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .visa-holder span {
+      display: block;
+      font-size: 13px;
+      color: #fff;
+      margin-top: 2px;
+      letter-spacing: 1px;
+    }
+
+    .visa-exp {
+      font-size: 11px;
+      color: #aaa;
+      text-align: right;
+    }
+    .visa-exp span { display: block; color: #fff; font-size: 13px; }
+
+    .r-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    .r-tag.red   { border: 1px solid #cc2222; color: #ff4444; }
+    .r-tag.white { border: 1px solid #555; color: #aaa; }
+
+    /* bottom stats bar */
+    .stats-bar {
+      background: #050505;
+      border-top: 1px solid #111;
+      padding: 6px 20px;
+      display: flex;
+      gap: 32px;
+      font-size: 11px;
+      color: #333;
+      flex-shrink: 0;
+    }
+    .stats-bar .sv { color: #00ff41; }
+    .stats-bar .sv.red { color: #ff3333; }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">&#9670; BREACH TERMINAL &nbsp; v2.4.1</div>
+  <div class="topbar-status">
+    <span>MODULE: HYDRA-X</span>
+    <span>TARGET: MINECRAFT BEDROCK</span>
+    <span id="ts-time">--:--:--</span>
+  </div>
+  <button class="btn-start" id="btnStart" onclick="toggleAttack()">&#9654; START ATTACK</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ══ LEFT PANEL ══ -->
+  <div class="panel-left">
+
+    <div class="term-header">
+      <span>[ ACTIVE BREACH MODULES ]</span>
+      <span class="blink" id="cursor-blink">&#9646;</span>
+    </div>
+
+    <!-- target -->
+    <div class="target-box">
+      <div><span class="lbl">TARGET PLATFORM  : </span><span class="val hi">Minecraft Bedrock (Microsoft)</span></div>
+      <div><span class="lbl">ACCOUNT EMAIL    : </span><span class="val">a***.norboyev@gmail.com</span></div>
+      <div><span class="lbl">GAMERTAG         : </span><span class="val hi">AzimN_UZ</span></div>
+      <div><span class="lbl">ACCOUNT UUID     : </span><span class="val">7f3a9c1d-e2b4-4a8f-91cc-**********</span></div>
+      <div><span class="lbl">API ENDPOINT     : </span><span class="val">api.minecraftservices.com</span></div>
+    </div>
+
+    <!-- module 1: dictionary attack -->
+    <div class="module" style="max-height:160px">
+      <div class="mod-title">
+        <span>MODULE 1 — DICTIONARY ATTACK</span>
+        <span class="active-dot" id="dot0"></span>
+      </div>
+      <div class="pass-line" id="pw0">—</div>
+      <div class="pass-line" id="pw1">—</div>
+      <div class="pass-line" id="pw2">—</div>
+      <div class="pass-line" id="pw3">—</div>
+      <div class="prog-wrap"><div class="prog-fill" id="dict-bar" style="width:0%"></div></div>
+      <div class="counter-row">
+        <span>wordlist progress</span>
+        <span class="num" id="dict-pct">0%</span>
+      </div>
+    </div>
+
+    <!-- module 2: brute force counter -->
+    <div class="module" style="max-height:100px">
+      <div class="mod-title">
+        <span>MODULE 2 — BRUTE FORCE (MD5+SHA)</span>
+        <span class="active-dot" id="dot1"></span>
+      </div>
+      <div class="counter-row">
+        <span>attempts</span>
+        <span class="num" id="bf-count">0</span>
+      </div>
+      <div class="counter-row">
+        <span>speed</span>
+        <span class="num" id="bf-speed">0 req/s</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill yellow" id="bf-bar" style="width:0%"></div></div>
+    </div>
+
+    <!-- module 3: API token scan -->
+    <div class="module" style="max-height:100px">
+      <div class="mod-title">
+        <span>MODULE 3 — SESSION TOKEN SCAN</span>
+        <span class="active-dot" id="dot2"></span>
+      </div>
+      <div class="pass-line" id="tok0">—</div>
+      <div class="pass-line" id="tok1">—</div>
+      <div class="prog-wrap"><div class="prog-fill red" id="tok-bar" style="width:0%"></div></div>
+    </div>
+
+    <!-- event log -->
+    <div class="module" style="flex:1">
+      <div class="mod-title"><span>SYSTEM LOG</span></div>
+      <div class="log-scroll" id="logScroll"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ MIDDLE PANEL (empty) ══ -->
+  <div class="panel-mid"></div>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <div class="panel-right">
+
+    <div class="r-header">
+      <span>TARGET PROFILE</span>
+      <span><span class="r-status-dot" id="r-dot"></span></span>
+    </div>
+
+    <div class="r-name-block">
+      <div class="r-label">Registrant</div>
+      <div class="r-name">AZIM<br>NORBOYEV</div>
+    </div>
+
+    <div class="r-divider"></div>
+
+    <div class="r-field">
+      <div class="r-field-label">Email</div>
+      <div class="r-field-value mono">azimnorboyev<br>@gmail.com</div>
+    </div>
+
+    <div class="r-field">
+      <div class="r-field-label">IP Address</div>
+      <div class="r-field-value mono" id="r-ip">—</div>
+    </div>
+
+    <div class="r-divider"></div>
+
+    <!-- VISA CARD -->
+    <div class="r-field-label">Payment Method</div>
+    <div class="visa-card">
+      <div class="visa-top">
+        <div class="visa-chip"></div>
+        <div class="visa-logo">VISA</div>
+      </div>
+      <div class="visa-number" id="r-cardnum">4*** **** **** ****</div>
+      <div class="visa-bottom">
+        <div class="visa-holder">
+          Cardholder
+          <span>AZIM NORBOYEV</span>
+        </div>
+        <div class="visa-exp">
+          Expires
+          <span id="r-exp">**/**</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="r-divider"></div>
+
+    <div class="r-field">
+      <div class="r-field-label">Transaction ID</div>
+      <div class="r-field-value mono" id="r-txid">—</div>
+    </div>
+
+    <div class="r-field">
+      <div class="r-field-label">Amount</div>
+      <div class="r-field-value big" id="r-amount">—</div>
+    </div>
+
+    <div class="r-field">
+      <div class="r-field-label">Registrar</div>
+      <div class="r-field-value">GoDaddy.com, LLC</div>
+    </div>
+
+    <div class="r-divider"></div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <span class="r-tag red">PHISHING DETECTED</span>
+      <span class="r-tag red">BLACKLISTED</span>
+      <span class="r-tag white">UZ · TASHKENT</span>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <span>TOTAL ATTEMPTS: <span class="sv" id="s-attempts">0</span></span>
+  <span>FAILURES: <span class="sv red" id="s-fails">0</span></span>
+  <span>THREADS: <span class="sv">64</span></span>
+  <span>ELAPSED: <span class="sv" id="s-elapsed">00:00</span></span>
+  <span>STATUS: <span class="sv" id="s-status">IDLE</span></span>
+</div>
+
+<script>
+  /* ── state ── */
+  let running = false;
+  let timers  = [];
+  let startTs = 0;
+  let attempts = 0, fails = 0;
+  let dictPct  = 0, bfPct = 0, tokPct = 0;
+  let bfCount  = 0;
+  let elapsed  = 0;
+  let logLines = [];
+
+  /* ── word lists ── */
+  const words = [
+    'azim1234','norboyev2024','minecraft123','Azim@2024','password1',
+    'qwerty123','admin123','Norboyev!','azimgamer','AzimUZ_1',
+    'dragon2024','letmein!','Minecraft1','toshkent01','123456789',
+    'azimboy','test1234','Bedrock2024','gamer@123','UZgamer',
+    'AzimN2024','secure99','P@ssw0rd!','gameboy99','Azim_N_uz',
+    'Norboyev99','xXazimXx','minecraft!1','2024Azim!','uz_player',
+    'mypassword','ilovegames','bedrock123','MsAzim2024','login2024',
+    'changeme!','hello1234','Qwerty!123','gamertag1','UzbekGamer',
+  ];
+
+  const tokens = [
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ZjNh...',
+    'Bearer mc_token_7a2f91cc_b3e4d5f6_a1b2c3d4e5f6...',
+    'session=8f2a1b3c4d5e6f7a; domain=.minecraft.net',
+    'access_token=ya29.A0ARrdaM7xB2cD3eF4gH5iJ6kL7mN8...',
+    'X-Auth-Token: 9a8b7c6d-5e4f-3a2b-1c0d-e9f8a7b6c5d4',
+    'mc_session_id=TOKEN_3f2a1b4c5d6e7f8a9b0c1d2e3f...',
+  ];
+
+  const logMsgs = [
+    ['ok',   'Connection established → api.minecraftservices.com:443'],
+    ['warn', 'Rate limit warning — throttling to 48 req/s'],
+    ['ok',   'TLS fingerprint spoofed → JA3: 771,49195,0,23-65281'],
+    [null,   'Switching wordlist chunk 14/87...'],
+    ['warn', 'HTTP 429 received — rotating proxy...'],
+    [null,   'Proxy rotated → 185.220.101.47:9050'],
+    [null,   'Injecting custom headers: X-Forwarded-For spoof'],
+    ['warn', 'CAPTCHA challenge detected — bypassing...'],
+    ['ok',   'CAPTCHA bypass success (2captcha API)'],
+    [null,   'Resuming attack from checkpoint 47,821'],
+    [null,   'Scanning token expiry window...'],
+    ['warn', 'Account lockout threshold near — cooling 4s'],
+    [null,   'IP rotated → pool 91.108.4.x (Telegram DC)'],
+    ['ok',   'New session cookie harvested'],
+    [null,   'Attempting credential stuffing batch #31'],
+    [null,   'Wordlist: rockyou.txt progress 61%'],
+    ['warn', 'Unexpected 503 — retrying in 2s'],
+    [null,   'Thread pool healthy: 64/64 active'],
+    [null,   'Hash comparison: MD5 batch #8,241 done'],
+  ];
+
+  /* ── helpers ── */
+  function randInt(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+  function randHex(n) {
+    let s=''; for(let i=0;i<n;i++) s+='0123456789abcdef'[randInt(0,15)];
+    return s;
+  }
+  function randIp() {
+    return [185,91,46,78,213][randInt(0,4)]+'.'+randInt(10,220)+'.'+randInt(10,220)+'.'+randInt(2,250);
+  }
+  function pad2(n) { return String(n).padStart(2,'0'); }
+  function nowTime() {
+    const d=new Date(); return pad2(d.getHours())+':'+pad2(d.getMinutes())+':'+pad2(d.getSeconds());
+  }
+
+  /* ── populate static right panel ── */
+  function populateRight() {
+    const prefix = '4' + randInt(100,999);
+    const suffix = randInt(1000,9999);
+    document.getElementById('r-cardnum').textContent = prefix + ' **** **** ' + suffix;
+    document.getElementById('r-ip').textContent      = randIp();
+    document.getElementById('r-exp').textContent     = pad2(randInt(1,12)) + '/' + randInt(26,29);
+    document.getElementById('r-txid').textContent    = 'TXN-' + randHex(8).toUpperCase();
+    document.getElementById('r-amount').textContent  = '$' + randInt(9,14) + '.99 USD';
+    document.getElementById('r-dot').classList.add('live');
+  }
+
+  /* ── clock ── */
+  function tickClock() {
+    document.getElementById('ts-time').textContent = nowTime();
+  }
+
+  /* ── add log line ── */
+  function addLog(type, msg) {
+    const ts = nowTime();
+    const div = document.createElement('div');
+    div.className = 'log-line' + (type ? ' '+type : '');
+    div.textContent = '['+ts+'] ' + msg;
+    const scroll = document.getElementById('logScroll');
+    scroll.insertBefore(div, scroll.firstChild);
+    while (scroll.children.length > 12) scroll.removeChild(scroll.lastChild);
+  }
+
+  /* ── toggle attack ── */
+  function toggleAttack() {
+    if (!running) startAttack(); else stopAttack();
+  }
+
+  function stopAttack() {
+    running = false;
+    timers.forEach(t => clearInterval(t));
+    timers = [];
+    const btn = document.getElementById('btnStart');
+    btn.textContent = '▶ START ATTACK';
+    btn.classList.remove('running');
+    document.getElementById('s-status').textContent = 'STOPPED';
+    ['dot0','dot1','dot2'].forEach(id => document.getElementById(id).classList.remove('on'));
+  }
+
+  function startAttack() {
+    running = true;
+    startTs = Date.now();
+    populateRight();
+    ['dot0','dot1','dot2'].forEach(id => document.getElementById(id).classList.add('on'));
+
+    const btn = document.getElementById('btnStart');
+    btn.textContent = '■ STOP';
+    btn.classList.add('running');
+    document.getElementById('s-status').textContent = 'RUNNING';
+
+    addLog('ok',  'Attack initialized — target locked');
+    addLog(null, 'Loading wordlists: rockyou.txt, custom_uz.txt');
+    addLog(null,  'Spawning 64 threads...');
+
+    /* DICT ATTACK — fast password cycling */
+    let wi = 0;
+    timers.push(setInterval(() => {
+      if (!running) return;
+      const lines = ['pw0','pw1','pw2','pw3'];
+      lines.forEach((id, i) => {
+        const w = words[(wi + i) % words.length];
+        const el = document.getElementById(id);
+        el.className = 'pass-line ' + (Math.random() < .08 ? 'fail' : 'try');
+        el.textContent = '>> TRYING: ' + w + (Math.random()<.08 ? '  [FAIL]':'');
+      });
+      wi = (wi + 4) % words.length;
+      dictPct = Math.min(100, dictPct + Math.random() * .18);
+      document.getElementById('dict-bar').style.width = dictPct + '%';
+      document.getElementById('dict-pct').textContent = Math.floor(dictPct) + '%';
+    }, 90));
+
+    /* BRUTE FORCE counter */
+    timers.push(setInterval(() => {
+      if (!running) return;
+      const inc = randInt(280, 520);
+      bfCount += inc;
+      attempts += inc;
+      fails    += Math.floor(inc * .998);
+      bfPct = Math.min(100, bfPct + Math.random() * .09);
+      document.getElementById('bf-count').textContent = bfCount.toLocaleString();
+      document.getElementById('bf-speed').textContent = randInt(380,560) + ' req/s';
+      document.getElementById('bf-bar').style.width = bfPct + '%';
+      document.getElementById('s-attempts').textContent = attempts.toLocaleString();
+      document.getElementById('s-fails').textContent    = fails.toLocaleString();
+    }, 200));
+
+    /* TOKEN SCAN */
+    let ti = 0;
+    timers.push(setInterval(() => {
+      if (!running) return;
+      const t = tokens[ti % tokens.length];
+      document.getElementById('tok0').textContent = '>> ' + t.substring(0, 55) + '...';
+      document.getElementById('tok1').textContent = '   HASH: sha256:' + randHex(16) + '... [testing]';
+      tokPct = Math.min(100, tokPct + Math.random() * .12);
+      document.getElementById('tok-bar').style.width = tokPct + '%';
+      ti++;
+    }, 300));
+
+    /* EVENT LOG */
+    let li = 0;
+    timers.push(setInterval(() => {
+      if (!running) return;
+      const [type, msg] = logMsgs[li % logMsgs.length];
+      addLog(type, msg);
+      li++;
+    }, randInt(900, 1800)));
+
+    /* ELAPSED TIMER */
+    timers.push(setInterval(() => {
+      if (!running) return;
+      elapsed++;
+      const m = Math.floor(elapsed/60), s = elapsed%60;
+      document.getElementById('s-elapsed').textContent = pad2(m)+':'+pad2(s);
+    }, 1000));
+  }
+
+  /* ── clock tick ── */
+  setInterval(tickClock, 1000);
+  tickClock();
+</script>
+</body>
+</html>
