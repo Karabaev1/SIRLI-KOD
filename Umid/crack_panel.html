@@ -535,16 +535,6 @@
     <div class="r-divider"></div>
 
     <div class="r-field">
-      <div class="r-field-label">Transaction ID</div>
-      <div class="r-field-value mono" id="r-txid">—</div>
-    </div>
-
-    <div class="r-field">
-      <div class="r-field-label">Amount</div>
-      <div class="r-field-value big" id="r-amount">—</div>
-    </div>
-
-    <div class="r-field">
       <div class="r-field-label">Registrar</div>
       <div class="r-field-value">GoDaddy.com, LLC</div>
     </div>
@@ -645,8 +635,6 @@
     document.getElementById('r-cardnum').textContent = prefix + ' **** **** ' + suffix;
     document.getElementById('r-ip').textContent      = randIp();
     document.getElementById('r-exp').textContent     = pad2(randInt(1,12)) + '/' + randInt(26,29);
-    document.getElementById('r-txid').textContent    = 'TXN-' + randHex(8).toUpperCase();
-    document.getElementById('r-amount').textContent  = '$' + randInt(9,14) + '.99 USD';
     document.getElementById('r-dot').classList.add('live');
   }
 
