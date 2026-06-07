@@ -430,7 +430,7 @@
 
     .skins-grid {
       display: flex;
-      gap: 10px;
+      gap: 18px;
       flex-wrap: wrap;
     }
 
@@ -446,15 +446,15 @@
     .skin-card.visible { opacity: 1; transform: translateY(0) scale(1); }
 
     .skin-face {
-      width: 64px;
-      height: 64px;
+      width: 72px;
+      height: 72px;
       border: 2px solid #1a3a1a;
       box-shadow: 0 0 10px rgba(0,255,65,.12);
       overflow: hidden;
       transition: box-shadow .3s, border-color .3s;
       position: relative;
     }
-    .skin-face svg { display: block; width: 64px; height: 64px; }
+    .skin-face svg { display: block; width: 72px; height: 72px; }
     .skin-card:hover .skin-face {
       box-shadow: 0 0 22px rgba(0,255,65,.55);
       border-color: #00ff41;
@@ -489,6 +489,19 @@
     }
     .skin-badge.premium { border: 1px solid #ffdd00; color: #ffdd00; }
     .skin-badge.cracked { border: 1px solid #00ff41; color: #00ff41; }
+
+    /* glitch animation for Black Glitch skin */
+    .glitch-skin {
+      animation: glitch-fx 3.5s infinite;
+    }
+    @keyframes glitch-fx {
+      0%,87%,100% { filter:none; transform:none; }
+      88%  { filter:hue-rotate(90deg) brightness(2); transform:translateX(2px); }
+      89%  { filter:hue-rotate(-90deg) brightness(.7); transform:translateX(-2px); }
+      90%  { filter:none; transform:none; }
+      93%  { filter:hue-rotate(180deg) saturate(4) brightness(1.5); transform:translateX(1px) skewX(3deg); }
+      94%  { filter:none; transform:none; }
+    }
   </style>
 </head>
 <body>
@@ -713,39 +726,87 @@
   ];
 
   /* ── skin pixel art ── */
-  function shade(hex, amt) {
-    const n = parseInt(hex.slice(1), 16);
-    const r = Math.min(255, Math.max(0, (n>>16)+amt));
-    const g = Math.min(255, Math.max(0, ((n>>8)&0xff)+amt));
-    const b = Math.min(255, Math.max(0, (n&0xff)+amt));
-    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
-  }
-
-  function makeFaceSvg(sk, hr, mt) {
-    const ns = shade(sk, -18);
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 8 8" style="image-rendering:pixelated;display:block">
-      <rect width="8" height="8" fill="${sk}"/>
-      <rect x="0" y="0" width="8" height="2" fill="${hr}"/>
-      <rect x="1" y="2" width="2" height="1" fill="${hr}"/>
-      <rect x="5" y="2" width="2" height="1" fill="${hr}"/>
-      <rect x="1" y="3" width="2" height="2" fill="#f0f0f0"/>
-      <rect x="5" y="3" width="2" height="2" fill="#f0f0f0"/>
-      <rect x="1" y="3" width="1" height="1" fill="#1a1008"/>
-      <rect x="5" y="3" width="1" height="1" fill="#1a1008"/>
-      <rect x="3" y="4" width="2" height="1" fill="${ns}"/>
-      <rect x="1" y="6" width="1" height="1" fill="${mt}"/>
-      <rect x="2" y="6" width="4" height="1" fill="${mt}"/>
-      <rect x="6" y="6" width="1" height="1" fill="${mt}"/>
-      <rect x="2" y="7" width="4" height="1" fill="${mt}"/>
-    </svg>`;
-  }
+  const SVG_OPEN = `<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 8 8" style="image-rendering:pixelated;display:block">`;
+  const SVG_CLOSE = `</svg>`;
 
   const skinAccounts = [
-    { name:'AzimN_UZ',    badge:'PREMIUM', svg: makeFaceSvg('#c8a96b','#3d2b1f','#6b3d28') },
-    { name:'Azim_Pro',    badge:'PREMIUM', svg: makeFaceSvg('#d4a47a','#5c2e00','#8b4513') },
-    { name:'xAzim_x',     badge:'CRACKED', svg: makeFaceSvg('#8b6348','#1a0a00','#4a2010') },
-    { name:'AzimBedrock', badge:'PREMIUM', svg: makeFaceSvg('#c8a96b','#1a1a6a','#3d2b1f') },
-    { name:'NorboyevMC',  badge:'CRACKED', svg: makeFaceSvg('#e0b87a','#2d4a1e','#6b3d28') },
+    {
+      name: 'BlackGlitch', badge: 'PREMIUM', glitch: true,
+      svg: SVG_OPEN +
+        `<rect width="8" height="8" fill="#111111"/>` +
+        `<rect x="0" y="0" width="8" height="2" fill="#000033"/>` +
+        `<rect x="0" y="2" width="3" height="1" fill="#000033"/>` +
+        `<rect x="5" y="2" width="3" height="1" fill="#000033"/>` +
+        `<rect x="1" y="3" width="2" height="2" fill="#00ffff"/>` +
+        `<rect x="5" y="3" width="2" height="2" fill="#00ffff"/>` +
+        `<rect x="5" y="3" width="1" height="1" fill="#ff00ff"/>` +
+        `<rect x="0" y="5" width="8" height="1" fill="#00ffff" opacity=".12"/>` +
+        `<rect x="3" y="4" width="2" height="1" fill="#0a0a0a"/>` +
+        `<rect x="2" y="6" width="4" height="1" fill="#001133"/>` +
+        SVG_CLOSE
+    },
+    {
+      name: 'BlueJeans', badge: 'PREMIUM', glitch: false,
+      svg: SVG_OPEN +
+        `<rect width="8" height="8" fill="#d4a47a"/>` +
+        `<rect x="0" y="0" width="8" height="2" fill="#3a1e08"/>` +
+        `<rect x="1" y="2" width="2" height="1" fill="#3a1e08"/>` +
+        `<rect x="5" y="2" width="2" height="1" fill="#3a1e08"/>` +
+        `<rect x="1" y="3" width="2" height="2" fill="#f0f0f0"/>` +
+        `<rect x="5" y="3" width="2" height="2" fill="#f0f0f0"/>` +
+        `<rect x="1" y="3" width="1" height="1" fill="#2244cc"/>` +
+        `<rect x="5" y="3" width="1" height="1" fill="#2244cc"/>` +
+        `<rect x="3" y="4" width="2" height="1" fill="#b8904a"/>` +
+        `<rect x="2" y="6" width="4" height="1" fill="#8b4513"/>` +
+        `<rect x="2" y="7" width="4" height="1" fill="#8b4513"/>` +
+        SVG_CLOSE
+    },
+    {
+      name: 'ShadowKnight', badge: 'CRACKED', glitch: false,
+      svg: SVG_OPEN +
+        `<rect width="8" height="8" fill="#231a2a"/>` +
+        `<rect x="0" y="0" width="8" height="3" fill="#100008"/>` +
+        `<rect x="1" y="3" width="2" height="2" fill="#ee1111"/>` +
+        `<rect x="5" y="3" width="2" height="2" fill="#ee1111"/>` +
+        `<rect x="2" y="3" width="1" height="1" fill="#ff5555"/>` +
+        `<rect x="6" y="3" width="1" height="1" fill="#ff5555"/>` +
+        `<rect x="3" y="4" width="2" height="1" fill="#1a1020"/>` +
+        `<rect x="2" y="6" width="4" height="1" fill="#200018"/>` +
+        SVG_CLOSE
+    },
+    {
+      name: 'NeonDrift', badge: 'PREMIUM', glitch: false,
+      svg: SVG_OPEN +
+        `<rect width="8" height="8" fill="#cc8855"/>` +
+        `<rect x="0" y="0" width="8" height="2" fill="#441100"/>` +
+        `<rect x="0" y="2" width="2" height="1" fill="#441100"/>` +
+        `<rect x="6" y="2" width="2" height="1" fill="#441100"/>` +
+        `<rect x="1" y="3" width="2" height="2" fill="#ffcc00"/>` +
+        `<rect x="5" y="3" width="2" height="2" fill="#ffcc00"/>` +
+        `<rect x="2" y="4" width="1" height="1" fill="#221100"/>` +
+        `<rect x="6" y="4" width="1" height="1" fill="#221100"/>` +
+        `<rect x="3" y="4" width="2" height="1" fill="#aa6633"/>` +
+        `<rect x="1" y="6" width="1" height="1" fill="#6b3d28"/>` +
+        `<rect x="2" y="6" width="4" height="1" fill="#6b3d28"/>` +
+        `<rect x="6" y="6" width="1" height="1" fill="#6b3d28"/>` +
+        SVG_CLOSE
+    },
+    {
+      name: 'FrostWalker', badge: 'CRACKED', glitch: false,
+      svg: SVG_OPEN +
+        `<rect width="8" height="8" fill="#b8ccd8"/>` +
+        `<rect x="0" y="0" width="8" height="2" fill="#d8ecf8"/>` +
+        `<rect x="1" y="2" width="2" height="1" fill="#d8ecf8"/>` +
+        `<rect x="5" y="2" width="2" height="1" fill="#d8ecf8"/>` +
+        `<rect x="1" y="3" width="2" height="2" fill="#ffffff"/>` +
+        `<rect x="5" y="3" width="2" height="2" fill="#ffffff"/>` +
+        `<rect x="1" y="3" width="1" height="1" fill="#4499ee"/>` +
+        `<rect x="5" y="3" width="1" height="1" fill="#4499ee"/>` +
+        `<rect x="3" y="4" width="2" height="1" fill="#99aabc"/>` +
+        `<rect x="2" y="6" width="4" height="1" fill="#7788aa"/>` +
+        `<rect x="2" y="7" width="4" height="1" fill="#7788aa"/>` +
+        SVG_CLOSE
+    },
   ];
 
   let dictTriggered = false;
@@ -766,15 +827,16 @@
     skinAccounts.forEach((acct, i) => {
       const card = document.createElement('div');
       card.className = 'skin-card';
-      card.innerHTML = `<div class="skin-face">${acct.svg}</div>
+      const faceClass = 'skin-face' + (acct.glitch ? ' glitch-skin' : '');
+      card.innerHTML = `<div class="${faceClass}">${acct.svg}</div>
         <div class="skin-name">${acct.name}</div>
         <div class="skin-badge ${acct.badge.toLowerCase()}">${acct.badge}</div>`;
       grid.appendChild(card);
       setTimeout(() => {
         card.classList.add('visible');
         document.getElementById('skinsHeader').textContent =
-          'ACCOUNTS COMPROMISED — ' + (i+1) + ' FOUND';
-      }, 300 + i * 350);
+          'ACCOUNTS COMPROMISED — ' + (i + 1) + ' FOUND';
+      }, 300 + i * 380);
     });
   }
 
