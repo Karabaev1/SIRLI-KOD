@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AegisGuard Security Suite
+Comment=Real-time antivirus protection
+Exec=python3 /home/saadiy/Documents/sirli_kod/3-qism/Umid/antivirus.py
+Icon=security-high
+Terminal=false
+Categories=Security;System;

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhantomSteg v2.3 — Image Payload Injector</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0b0d12;
+  --panel:   #10131a;
+  --card:    #161b24;
+  --border:  #1e2535;
+  --border2: #2a3347;
+  --accent:  #7c3aed;
+  --acc2:    #a78bfa;
+  --red:     #c0392b;
+  --red2:    #e74c3c;
+  --green:   #27ae60;
+  --green2:  #2ecc71;
+  --yellow:  #f39c12;
+  --text:    #dce3ef;
+  --text2:   #6e7fa0;
+  --text3:   #3d4d66;
+  --mono:    'JetBrains Mono','Fira Code','Courier New',monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI','Ubuntu',sans-serif;
+  font-size: 13px;
+  min-height: 100vh;
+  user-select: none;
+}
+
+/* ── TITLEBAR ─────────────────────────────── */
+.titlebar {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tb-logo {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--accent), #4f46e5);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+
+.tb-name {
+  font-size: 14px; font-weight: 700; letter-spacing: .4px;
+}
+.tb-ver {
+  font-family: var(--mono); font-size: 11px; color: var(--text3);
+}
+.tb-sep {
+  color: var(--text3); margin: 0 4px;
+}
+.tb-sub {
+  font-size: 12px; color: var(--text2);
+}
+.tb-badge {
+  margin-left: auto;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--green2);
+  background: rgba(46,204,113,.08);
+  border: 1px solid rgba(46,204,113,.2);
+  padding: 3px 10px; border-radius: 20px;
+}
+
+/* ── LAYOUT ───────────────────────────────── */
+.main  { max-width: 1080px; margin: 0 auto; padding: 24px; }
+.cols  { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.ph {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.2px; color: var(--text2);
+  display: flex; align-items: center; gap: 8px;
+}
+.ph .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.pb { padding: 16px; }
+
+/* ── UPLOAD ───────────────────────────────── */
+.dropzone {
+  border: 2px dashed var(--border2);
+  border-radius: 8px;
+  padding: 36px 20px;
+  text-align: center; cursor: pointer;
+  transition: all .2s;
+}
+.dropzone:hover, .dropzone.over {
+  border-color: var(--acc2);
+  background: rgba(124,58,237,.05);
+}
+.dz-icon { font-size: 36px; margin-bottom: 8px; }
+.dz-text { font-size: 13px; color: var(--text2); }
+.dz-text b { color: var(--acc2); }
+.dz-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+.preview-wrap { display: none; }
+#imgCanvas {
+  width: 100%; border-radius: 6px; display: block;
+  border: 1px solid var(--border2);
+}
+.img-meta {
+  display: flex; gap: 0;
+  margin-top: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px; overflow: hidden;
+}
+.meta-cell {
+  flex: 1; padding: 8px 10px;
+  border-right: 1px solid var(--border);
+  font-family: var(--mono);
+}
+.meta-cell:last-child { border-right: none; }
+.mc-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .7px; color: var(--text3); margin-bottom: 3px; }
+.mc-val { font-size: 12px; color: var(--text); }
+
+/* ── FORM ─────────────────────────────────── */
+.fg { margin-bottom: 13px; }
+.fl {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .8px;
+  color: var(--text2); margin-bottom: 5px; display: block;
+}
+.fi, .fs {
+  width: 100%;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 5px; color: var(--text);
+  font-family: var(--mono); font-size: 12px;
+  padding: 8px 11px; outline: none;
+  transition: border-color .2s;
+}
+.fi:focus, .fs:focus { border-color: var(--acc2); }
+.fs option { background: var(--card); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.cbrow {
+  display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap;
+}
+.cbl {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text2); cursor: pointer;
+}
+.cbl input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; }
+.badge-ok {
+  font-size: 9px; font-family: var(--mono);
+  color: var(--green2);
+  background: rgba(46,204,113,.1);
+  border: 1px solid rgba(46,204,113,.2);
+  padding: 1px 6px; border-radius: 3px;
+}
+
+/* ── INJECT BUTTON ────────────────────────── */
+#injectBtn {
+  width: 100%; padding: 14px;
+  background: var(--red);
+  color: #fff; border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; font-family: var(--mono);
+  transition: background .2s; margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+#injectBtn:hover:not(:disabled) { background: var(--red2); }
+#injectBtn:disabled {
+  background: var(--border); color: var(--text3); cursor: not-allowed;
+}
+
+/* ── PROGRESS ─────────────────────────────── */
+#progressSection { display: none; margin-bottom: 18px; }
+
+.prog-bar-wrap {
+  background: var(--card); border-radius: 4px;
+  height: 5px; overflow: hidden; margin: 10px 0 16px;
+}
+.prog-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--acc2));
+  border-radius: 4px; width: 0%;
+  transition: width .25s ease;
+}
+
+.step-list { list-style: none; }
+.step-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: 11px;
+  color: var(--text3);
+  display: flex; align-items: center; gap: 12px;
+}
+.step-list li:last-child { border-bottom: none; }
+.step-list li.active { color: var(--text); }
+.step-list li.done   { color: var(--green2); }
+
+.si { width: 14px; text-align: center; flex-shrink: 0; }
+.spin {
+  display: inline-block; width: 11px; height: 11px;
+  border: 2px solid var(--acc2); border-top-color: transparent;
+  border-radius: 50%; animation: spin .5s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESULT ───────────────────────────────── */
+#resultSection { display: none; }
+
+.compare-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  margin-bottom: 16px;
+}
+.cmp-box { border-radius: 6px; overflow: hidden; border: 1px solid var(--border2); }
+.cmp-box.modified { border-color: var(--green); }
+.cmp-box canvas { width: 100%; display: block; }
+.cmp-lbl {
+  text-align: center; font-size: 10px; font-family: var(--mono);
+  color: var(--text2); padding: 6px;
+  background: var(--card);
+}
+.cmp-box.modified .cmp-lbl { color: var(--green2); }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 10px;
+  margin-bottom: 14px;
+}
+.stat-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px; text-align: center;
+}
+.sv {
+  font-family: var(--mono); font-size: 17px; font-weight: 700;
+  color: var(--acc2); margin-bottom: 4px;
+}
+.sl {
+  font-size: 9px; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--text3);
+}
+
+.hash-box {
+  font-family: var(--mono); font-size: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 14px; margin-bottom: 14px;
+  line-height: 1.9;
+}
+.hash-box .lbl { color: var(--text3); }
+.hash-box .val { color: var(--text2); }
+.hash-box .val-new { color: var(--green2); }
+
+.note-row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green); color: #fff; font-weight: 700;
+  font-size: 12px; border: none; border-radius: 6px;
+  padding: 10px 22px; cursor: pointer;
+  font-family: var(--mono); text-decoration: none;
+  transition: opacity .2s;
+}
+.dl-btn:hover { opacity: .85; }
+.note-txt {
+  font-size: 10px; font-family: var(--mono);
+  color: var(--text3); line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<!-- ── TITLEBAR ───────────────────────────────── -->
+<div class="titlebar">
+  <div class="tb-logo">⬡</div>
+  <span class="tb-name">PhantomSteg</span>
+  <span class="tb-ver">v2.3.1</span>
+  <span class="tb-sep">·</span>
+  <span class="tb-sub">Image Payload Injector</span>
+  <div class="tb-badge">● OFFLINE MODE</div>
+</div>
+
+<!-- ── MAIN ───────────────────────────────────── -->
+<div class="main">
+
+  <div class="cols">
+
+    <!-- LEFT: Image upload -->
+    <div class="panel">
+      <div class="ph">
+        <div class="dot" style="background:var(--acc2)"></div>
+        Target Image
+      </div>
+      <div class="pb">
+
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+          <div class="dz-icon">🖼</div>
+          <div class="dz-text"><b>Click to upload</b> or drag &amp; drop</div>
+          <div class="dz-hint">JPEG · PNG · BMP · WEBP</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+        <div class="preview-wrap" id="previewWrap">
+          <canvas id="imgCanvas"></canvas>
+          <div class="img-meta" id="imgMeta"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Config -->
+    <div class="panel">
+      <div class="ph">
+        <div class="dot" style="background:var(--red2)"></div>
+        Payload Configuration
+      </div>
+      <div class="pb">
+
+        <div class="fg">
+          <label class="fl">Payload Type</label>
+          <select class="fs">
+            <option>Reverse Shell</option>
+            <option>Keylogger</option>
+            <option>RAT (Remote Access Trojan)</option>
+            <option>Screen Capture Agent</option>
+          </select>
+        </div>
+
+        <div class="frow">
+          <div class="fg">
+            <label class="fl">C2 Address</label>
+            <input class="fi" id="c2ip" type="text" value="192.168.1.105" placeholder="0.0.0.0">
+          </div>
+          <div class="fg">
+            <label class="fl">C2 Port</label>
+            <input class="fi" id="c2port" type="text" value="4444">
+          </div>
+        </div>
+
+        <div class="fg">
+          <label class="fl">Trigger Condition</label>
+          <select class="fs">
+            <option>On Open — image viewer launch</option>
+            <option>On Share — messaging app send</option>
+            <option>Delayed — 60 s after open</option>
+            <option>On WiFi Connect</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label class="fl">Steganography Method</label>
+          <select class="fs">
+            <option>LSB — Least Significant Bit</option>
+            <option>DCT Coefficient Injection</option>
+            <option>EXIF Metadata Embedding</option>
+            <option>Alpha Channel Encoding</option>
+          </select>
+        </div>
+
+        <div class="cbrow">
+          <label class="cbl">
+            <input type="checkbox" checked>
+            AES-256 Encryption <span class="badge-ok">recommended</span>
+          </label>
+          <label class="cbl">
+            <input type="checkbox" checked>
+            Anti-forensics mode
+          </label>
+          <label class="cbl">
+            <input type="checkbox">
+            Persistence (auto-restart)
+          </label>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- INJECT BUTTON -->
+  <button id="injectBtn" onclick="startInject()">
+    <span>▶</span> INJECT PAYLOAD INTO IMAGE
+  </button>
+
+  <!-- PROGRESS -->
+  <div class="panel" id="progressSection">
+    <div class="ph">
+      <div class="dot" id="progDot" style="background:var(--yellow)"></div>
+      <span id="progTitle">Injection in progress...</span>
+      <span style="margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text3)" id="progPct">0%</span>
+    </div>
+    <div class="pb">
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill" id="progFill"></div>
+      </div>
+      <ul class="step-list" id="stepList"></ul>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultSection">
+    <div class="panel">
+      <div class="ph">
+        <div class="dot" style="background:var(--green2)"></div>
+        Injection Complete — Payload Embedded Successfully
+      </div>
+      <div class="pb">
+        <div class="compare-row" id="compareRow"></div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="hash-box" id="hashBox"></div>
+        <div class="note-row">
+          <a class="dl-btn" id="dlBtn" href="#" download>↓ &nbsp;Download Backdoored Image</a>
+          <div class="note-txt">
+            Visually identical to original · payload hidden in pixel LSB values<br>
+            Undetectable by standard image viewers and most AV scanners
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ─────────────────────────────────────────────
+//  UPLOAD
+// ─────────────────────────────────────────────
+let uploadedImg  = null;
+let uploadedFile = null;
+let imgW = 0, imgH = 0;
+
+const dropzone   = document.getElementById('dropzone');
+const fileInput  = document.getElementById('fileInput');
+const previewWrap = document.getElementById('previewWrap');
+const imgCanvas  = document.getElementById('imgCanvas');
+const mainCtx    = imgCanvas.getContext('2d');
+
+fileInput.addEventListener('change', e => loadImg(e.target.files[0]));
+dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.classList.add('over'); });
+dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('over'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('over');
+  if (e.dataTransfer.files[0]) loadImg(e.dataTransfer.files[0]);
+});
+
+function loadImg(file) {
+  if (!file) return;
+  uploadedFile = file;
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    uploadedImg = img;
+    imgW = img.naturalWidth; imgH = img.naturalHeight;
+
+    const maxW = imgCanvas.parentElement.clientWidth - 32;
+    const scale = Math.min(1, maxW / imgW);
+    imgCanvas.width  = Math.round(imgW * scale);
+    imgCanvas.height = Math.round(imgH * scale);
+    mainCtx.drawImage(img, 0, 0, imgCanvas.width, imgCanvas.height);
+
+    const kb = (file.size / 1024).toFixed(1);
+    document.getElementById('imgMeta').innerHTML = `
+      <div class="meta-cell"><div class="mc-lbl">File</div><div class="mc-val">${file.name}</div></div>
+      <div class="meta-cell"><div class="mc-lbl">Size</div><div class="mc-val">${kb} KB</div></div>
+      <div class="meta-cell"><div class="mc-lbl">Dimensions</div><div class="mc-val">${imgW} × ${imgH}</div></div>
+      <div class="meta-cell"><div class="mc-lbl">Format</div><div class="mc-val">${file.type.split('/')[1].toUpperCase()}</div></div>
+    `;
+    dropzone.style.display  = 'none';
+    previewWrap.style.display = 'block';
+  };
+  img.src = url;
+}
+
+// ─────────────────────────────────────────────
+//  INJECT STEPS
+// ─────────────────────────────────────────────
+const STEPS = [
+  { txt: "Parsing image file structure (SOI / JFIF markers)...", dur: 750  },
+  { txt: "Extracting RGB pixel channel data...",                 dur: 850  },
+  { txt: "Generating payload vector from config...",            dur: 600  },
+  { txt: "Encrypting payload  — AES-256-CBC  (key: session)...",dur: 1150 },
+  { txt: "Injecting into Red-channel   LSB bits  [0..2]...",    dur: 1300 },
+  { txt: "Injecting into Green-channel LSB bits  [0..2]...",    dur: 1250 },
+  { txt: "Injecting into Blue-channel  LSB bits  [0..1]...",    dur: 1200 },
+  { txt: "Rebuilding JPEG quantization blocks...",              dur: 900  },
+  { txt: "Patching EXIF / XMP metadata fields...",              dur: 700  },
+  { txt: "Verifying payload integrity  — SHA-256 checksum...",  dur: 850  },
+];
+
+let scanAnim = null;
+
+function startInject() {
+  if (!uploadedImg) { alert('Upload a target image first.'); return; }
+
+  document.getElementById('injectBtn').disabled = true;
+
+  const sec = document.getElementById('progressSection');
+  sec.style.display = 'block';
+  document.getElementById('resultSection').style.display = 'none';
+  sec.scrollIntoView({ behavior: 'smooth' });
+
+  // Build step list
+  const list = document.getElementById('stepList');
+  list.innerHTML = '';
+  STEPS.forEach((s, i) => {
+    const li = document.createElement('li');
+    li.id = `s${i}`;
+    li.innerHTML = `<span class="si">○</span><span>${s.txt}</span>`;
+    list.appendChild(li);
+  });
+
+  startScanline();
+  runStep(0, 0);
+}
+
+function runStep(idx, elapsed) {
+  const total = STEPS.reduce((a, s) => a + s.dur, 0);
+  if (idx >= STEPS.length) {
+    stopScanline();
+    setProgress(100);
+    document.getElementById('progPct').textContent = '100%';
+    document.getElementById('progDot').style.background = 'var(--green2)';
+    document.getElementById('progTitle').textContent = 'Injection complete.';
+    setTimeout(showResult, 600);
+    return;
+  }
+
+  const step = STEPS[idx];
+  const li   = document.getElementById(`s${idx}`);
+  li.className = 'active';
+  li.querySelector('.si').innerHTML = '<span class="spin"></span>';
+
+  const pBefore = elapsed / total * 100;
+  const pAfter  = (elapsed + step.dur) / total * 100;
+  animProg(pBefore, pAfter, step.dur);
+
+  setTimeout(() => {
+    li.className = 'done';
+    li.querySelector('.si').textContent = '✓';
+    runStep(idx + 1, elapsed + step.dur);
+  }, step.dur);
+}
+
+function setProgress(pct) {
+  document.getElementById('progFill').style.width = pct + '%';
+}
+
+function animProg(from, to, dur) {
+  const t0 = performance.now();
+  function tick(now) {
+    const t = Math.min((now - t0) / dur, 1);
+    const v = from + (to - from) * t;
+    setProgress(v);
+    document.getElementById('progPct').textContent = Math.round(v) + '%';
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ─────────────────────────────────────────────
+//  CANVAS SCANLINE ANIMATION
+// ─────────────────────────────────────────────
+function startScanline() {
+  let y = 0;
+  const cw = imgCanvas.width, ch = imgCanvas.height;
+
+  scanAnim = setInterval(() => {
+    mainCtx.drawImage(uploadedImg, 0, 0, cw, ch);
+
+    // Scanned region tint
+    mainCtx.fillStyle = 'rgba(124, 58, 237, 0.07)';
+    mainCtx.fillRect(0, 0, cw, y);
+
+    // Scanline glow
+    const g = mainCtx.createLinearGradient(0, y - 18, 0, y + 18);
+    g.addColorStop(0,   'rgba(167,139,250,0)');
+    g.addColorStop(0.5, 'rgba(167,139,250,0.5)');
+    g.addColorStop(1,   'rgba(167,139,250,0)');
+    mainCtx.fillStyle = g;
+    mainCtx.fillRect(0, y - 18, cw, 36);
+
+    // White scanline
+    mainCtx.fillStyle = 'rgba(255,255,255,0.18)';
+    mainCtx.fillRect(0, y - 1, cw, 2);
+
+    // Pixel "flash" noise near scanline
+    for (let n = 0; n < 6; n++) {
+      const px = Math.random() * cw;
+      const py = y + (Math.random() - 0.5) * 30;
+      mainCtx.fillStyle = `rgba(${
+        Math.random() > .5 ? '167,139,250' : '46,204,113'
+      },${0.4 + Math.random() * 0.4})`;
+      mainCtx.fillRect(px, py, 2, 2);
+    }
+
+    y += 4;
+    if (y > ch) y = 0;
+  }, 16);
+}
+
+function stopScanline() {
+  clearInterval(scanAnim);
+  mainCtx.drawImage(uploadedImg, 0, 0, imgCanvas.width, imgCanvas.height);
+}
+
+// ─────────────────────────────────────────────
+//  RESULT
+// ─────────────────────────────────────────────
+function showResult() {
+  const sec = document.getElementById('resultSection');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth' });
+
+  const baseName = uploadedFile.name;
+  const bdName   = baseName.replace(/(\.[^.]+)$/, '_bd$1');
+
+  // Compare canvases
+  const cr = document.getElementById('compareRow');
+  cr.innerHTML = `
+    <div class="cmp-box">
+      <canvas id="cmpA"></canvas>
+      <div class="cmp-lbl">ORIGINAL — ${baseName}</div>
+    </div>
+    <div class="cmp-box modified">
+      <canvas id="cmpB"></canvas>
+      <div class="cmp-lbl">MODIFIED — ${bdName}</div>
+    </div>
+  `;
+
+  [['cmpA', false], ['cmpB', true]].forEach(([id, isMod]) => {
+    const c = document.getElementById(id);
+    const scale = Math.min(1, 460 / imgW);
+    c.width  = Math.round(imgW * scale);
+    c.height = Math.round(imgH * scale);
+    const cx = c.getContext('2d');
+    cx.drawImage(uploadedImg, 0, 0, c.width, c.height);
+    if (isMod) {
+      // Barely perceptible green tint — LSB changes are invisible
+      cx.fillStyle = 'rgba(46,204,113,0.03)';
+      cx.fillRect(0, 0, c.width, c.height);
+    }
+  });
+
+  // Stats
+  const pixels    = imgW * imgH;
+  const modPx     = Math.floor(pixels * 0.312);
+  const payBytes  = 3247 + Math.floor(Math.random() * 500);
+  const c2ip      = document.getElementById('c2ip').value || '192.168.1.105';
+  const c2port    = document.getElementById('c2port').value || '4444';
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-box">
+      <div class="sv">${payBytes.toLocaleString()}</div>
+      <div class="sl">Payload bytes</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv">${modPx.toLocaleString()}</div>
+      <div class="sl">Pixels modified</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" style="color:var(--green2)">0.2%</div>
+      <div class="sl">AV detection rate</div>
+    </div>
+    <div class="stat-box">
+      <div class="sv" style="color:var(--green2)">PASS</div>
+      <div class="sl">Integrity check</div>
+    </div>
+  `;
+
+  const h1 = rndHex(64), h2 = rndHex(64);
+  document.getElementById('hashBox').innerHTML = `
+    <div><span class="lbl">ORIGINAL  SHA-256  </span><span class="val">${h1}</span></div>
+    <div><span class="lbl">MODIFIED  SHA-256  </span><span class="val-new">${h2}</span></div>
+    <div style="margin-top:6px"><span class="lbl">C2 TARGET          </span><span class="val-new">${c2ip}:${c2port}</span></div>
+    <div><span class="lbl">PAYLOAD SIZE       </span><span class="val">${payBytes} bytes  (AES-256-CBC encrypted)</span></div>
+  `;
+
+  // Download (original blob — JS can't truly inject, for demo purposes)
+  const url = URL.createObjectURL(uploadedFile);
+  const dl  = document.getElementById('dlBtn');
+  dl.href     = url;
+  dl.download = bdName;
+}
+
+function rndHex(n) {
+  const h = '0123456789abcdef';
+  return Array.from({length: n}, () => h[Math.floor(Math.random() * 16)]).join('');
+}
+</script>
+</body>
+</html>

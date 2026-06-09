@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensicScan Pro — Mobile Analysis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
+
+        body {
+            background: #0a0e1a;
+            color: #e0f0ff;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(0,212,255,0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 50%, rgba(123,47,255,0.04) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: #080c18;
+            border-bottom: 1px solid #00d4ff22;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 46px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo-wrap { display: flex; align-items: center; gap: 10px; }
+
+        .logo-hex {
+            width: 30px; height: 30px;
+            border: 2px solid #00d4ff;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; color: #00d4ff;
+            animation: hexPulse 2.5s infinite;
+        }
+
+        .logo-text { font-size: 15px; font-weight: bold; color: #00d4ff; letter-spacing: 4px; }
+        .logo-sub  { font-size: 9px; color: #7b2fff; letter-spacing: 2px; margin-top: 1px; }
+
+        .header-right {
+            display: flex; gap: 24px; align-items: center;
+            font-size: 10px; color: #506070;
+        }
+
+        .live-badge {
+            display: flex; align-items: center; gap: 5px;
+            color: #00d4ff;
+        }
+
+        .live-dot {
+            width: 7px; height: 7px;
+            background: #00d4ff; border-radius: 50%;
+            animation: blink 1.2s infinite;
+            box-shadow: 0 0 6px #00d4ff;
+        }
+
+        /* ── MAIN ── */
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── LEFT — PHONE PANEL ── */
+        .phone-panel {
+            width: 36%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #00d4ff15;
+            position: relative;
+            gap: 0;
+        }
+
+        .panel-tag {
+            font-size: 9px; letter-spacing: 3px; color: #506070;
+            margin-bottom: 18px;
+            opacity: 0; transition: opacity 0.6s 0.2s;
+        }
+
+        .phone-wrapper {
+            opacity: 0;
+            transform: translateX(-50px) scale(0.96);
+            transition: opacity 0.9s ease, transform 0.9s ease;
+        }
+
+        .phone-wrapper.visible {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+
+        .phone-wrapper.visible + .panel-tag,
+        .phone-wrapper.visible ~ .panel-tag { opacity: 1; }
+
+        /* Phone body */
+        .phone {
+            width: 188px; height: 378px;
+            background: #050810;
+            border: 2.5px solid #00d4ff55;
+            border-radius: 34px;
+            position: relative;
+            box-shadow:
+                0 0 35px rgba(0,212,255,0.18),
+                0 0 70px rgba(0,212,255,0.06),
+                inset 0 0 20px rgba(0,212,255,0.03);
+        }
+
+        /* Camera punch-hole */
+        .phone-camera-area {
+            position: absolute;
+            top: 14px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        .cam-dot {
+            width: 8px; height: 8px;
+            background: #080f1e;
+            border-radius: 50%;
+            border: 1px solid #00d4ff33;
+        }
+
+        .cam-sensor { width: 5px; height: 5px; background: #080f1e; border-radius: 50%; }
+
+        /* Screen */
+        .phone-screen {
+            position: absolute;
+            top: 10px; left: 7px; right: 7px; bottom: 10px;
+            background: #020612;
+            border-radius: 28px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Scan line across screen */
+        .screen-scanline {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff88, #00d4ff, #00d4ff88, transparent);
+            animation: scanDown 2.4s linear infinite;
+            z-index: 5;
+        }
+
+        /* Screen status bar */
+        .screen-statusbar {
+            padding: 6px 12px 0;
+            display: flex; justify-content: space-between;
+            font-size: 7px; color: #405060;
+            flex-shrink: 0;
+        }
+
+        /* Screen content */
+        .screen-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .screen-icon {
+            font-size: 22px;
+            margin-bottom: 6px;
+            animation: iconGlow 2s infinite;
+        }
+
+        .screen-title {
+            font-size: 8px; color: #00d4ff;
+            letter-spacing: 2px; text-align: center;
+            margin-bottom: 2px;
+        }
+
+        .screen-subtitle {
+            font-size: 6.5px; color: #7b2fff;
+            letter-spacing: 1px; text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .screen-minibars { width: 88%; }
+
+        .minibar { margin-bottom: 5px; }
+
+        .minibar-top {
+            display: flex; justify-content: space-between;
+            font-size: 6px; color: #405060;
+            margin-bottom: 2px;
+        }
+
+        .minibar-track {
+            height: 2px; background: #ffffff0c;
+            border-radius: 1px; overflow: hidden;
+        }
+
+        .minibar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7b2fff, #00d4ff);
+            border-radius: 1px;
+        }
+
+        /* Hex stream at bottom of screen */
+        .hex-stream {
+            padding: 5px 8px;
+            font-size: 5.5px;
+            color: #7b2fff55;
+            letter-spacing: 1px;
+            overflow: hidden;
+            height: 26px;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        /* Side buttons */
+        .btn-right {
+            position: absolute; right: -4px; top: 90px;
+            width: 3.5px; height: 50px;
+            background: #00d4ff22;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .btn-vol-up {
+            position: absolute; left: -4px; top: 75px;
+            width: 3.5px; height: 28px;
+            background: #00d4ff1a;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .btn-vol-dn {
+            position: absolute; left: -4px; top: 112px;
+            width: 3.5px; height: 28px;
+            background: #00d4ff1a;
+            border-radius: 3px 0 0 3px;
+        }
+
+        /* Home bar */
+        .phone-homebar {
+            position: absolute; bottom: 3px; left: 50%;
+            transform: translateX(-50%);
+            width: 55px; height: 3px;
+            background: linear-gradient(90deg, transparent, #00d4ff44, transparent);
+            border-radius: 2px;
+        }
+
+        /* USB port */
+        .usb-port {
+            position: absolute; bottom: -2px; left: 50%;
+            transform: translateX(-50%);
+            width: 18px; height: 5px;
+            border: 1.5px solid #00d4ff44;
+            border-radius: 2px;
+            background: #00d4ff0a;
+        }
+
+        /* USB cable animation */
+        .cable-wrap {
+            display: flex; flex-direction: column; align-items: center;
+            margin-top: 2px;
+        }
+
+        .cable-tube {
+            width: 2.5px; height: 35px;
+            background: linear-gradient(180deg, #00d4ff44, #00d4ff22);
+            position: relative; overflow: hidden;
+        }
+
+        .cable-particle {
+            position: absolute;
+            top: -6px; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(180deg, transparent, #00d4ff, transparent);
+            animation: cableFlow 1.4s linear infinite;
+        }
+
+        .cable-particle:nth-child(2) { animation-delay: 0.47s; }
+        .cable-particle:nth-child(3) { animation-delay: 0.93s; }
+
+        .cable-conn {
+            width: 12px; height: 6px;
+            border: 1.5px solid #00d4ff55;
+            border-radius: 2px;
+            background: #00d4ff0a;
+        }
+
+        /* Status badge */
+        .conn-status {
+            margin-top: 12px;
+            font-size: 9px; letter-spacing: 2px;
+            color: #00d4ff;
+            padding: 3px 10px;
+            border: 1px solid #00d4ff33;
+            border-radius: 20px;
+            background: #00d4ff08;
+        }
+
+        /* ── RIGHT — SCAN PANEL ── */
+        .scan-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Device info */
+        .device-bar {
+            background: #080c18;
+            border-bottom: 1px solid #00d4ff1a;
+            padding: 7px 16px;
+            display: flex; gap: 0;
+            flex-shrink: 0;
+        }
+
+        .dstat {
+            flex: 1;
+            display: flex; flex-direction: column; gap: 2px;
+            border-right: 1px solid #00d4ff0e;
+            padding: 0 14px;
+        }
+
+        .dstat:first-child { padding-left: 0; }
+        .dstat:last-child  { border-right: none; }
+
+        .dstat-label { font-size: 8px; color: #405060; letter-spacing: 1px; }
+        .dstat-value { font-size: 10px; color: #e0f0ff; font-weight: bold; }
+        .dstat-value.cyan  { color: #00d4ff; }
+        .dstat-value.purple { color: #7b2fff; }
+
+        /* Scan content */
+        .scan-content {
+            flex: 1;
+            display: flex; flex-direction: column;
+            padding: 10px 14px;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        /* Active module header */
+        .active-header {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .active-module-name {
+            font-size: 13px; font-weight: bold;
+            color: #00d4ff; letter-spacing: 4px;
+        }
+
+        .active-phase {
+            font-size: 9px; color: #7b2fff;
+            letter-spacing: 2px;
+        }
+
+        /* Overall progress bar */
+        .progress-card {
+            background: #0b1120;
+            border: 1px solid #00d4ff18;
+            border-radius: 6px;
+            padding: 8px 12px;
+            flex-shrink: 0;
+        }
+
+        .pc-top {
+            display: flex; justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+
+        .pc-label { font-size: 9px; color: #405060; letter-spacing: 2px; }
+        .pc-pct   { font-size: 16px; color: #00d4ff; font-weight: bold; }
+        .pc-info  { font-size: 8px; color: #7b2fff; }
+
+        .prog-track {
+            height: 5px; background: #ffffff08;
+            border-radius: 3px; overflow: hidden;
+            position: relative;
+        }
+
+        .prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7b2fff, #00d4ff);
+            border-radius: 3px;
+            transition: width 0.4s;
+            position: relative;
+        }
+
+        .prog-fill::after {
+            content: '';
+            position: absolute; right: -2px; top: -2px;
+            width: 9px; height: 9px;
+            background: #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00d4ff;
+        }
+
+        /* Modules grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .mod-card {
+            background: #0b1120;
+            border: 1px solid #00d4ff0d;
+            border-radius: 6px;
+            padding: 7px 9px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .mod-card.active {
+            border-color: #00d4ff44;
+            box-shadow: 0 0 16px rgba(0,212,255,0.08);
+        }
+
+        .mod-card.done {
+            border-color: #7b2fff33;
+        }
+
+        .mod-top {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 4px;
+        }
+
+        .mod-name { font-size: 8px; color: #7090a0; letter-spacing: 1.5px; }
+
+        .mod-badge {
+            font-size: 7px; padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        .mod-badge.scanning { color: #00d4ff; background: #00d4ff18; animation: blink 1.2s infinite; }
+        .mod-badge.done     { color: #7b2fff; background: #7b2fff18; }
+        .mod-badge.queued   { color: #405060; background: #ffffff08; }
+
+        .mod-prog-track {
+            height: 2px; background: #ffffff08;
+            border-radius: 1px; overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .mod-prog-fill {
+            height: 100%;
+            border-radius: 1px;
+            transition: width 0.3s;
+        }
+
+        .mod-prog-fill.scanning { background: linear-gradient(90deg, #7b2fff, #00d4ff); }
+        .mod-prog-fill.done     { background: #7b2fff; }
+
+        .mod-current {
+            font-size: 7px; color: #405060;
+            white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Scan log */
+        .log-box {
+            flex: 1;
+            background: #050810;
+            border: 1px solid #00d4ff12;
+            border-radius: 6px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .log-top {
+            padding: 7px 14px;
+            border-bottom: 1px solid #00d4ff0e;
+            display: flex; justify-content: space-between;
+            font-size: 11px; color: #405060;
+            letter-spacing: 1px; flex-shrink: 0;
+        }
+
+        .log-scroll {
+            flex: 1; overflow: hidden;
+            padding: 8px 14px;
+            display: flex; flex-direction: column;
+            justify-content: flex-end;
+            gap: 2px;
+        }
+
+        .log-line {
+            display: flex; gap: 12px;
+            font-size: 12.5px; line-height: 1.85;
+            opacity: 0;
+            animation: fadeUp 0.3s ease forwards;
+        }
+
+        .ll-time   { color: #7b2fff; min-width: 90px; flex-shrink: 0; }
+        .ll-mod    { color: #00d4ff77; min-width: 82px; flex-shrink: 0; }
+        .ll-msg    { color: #506070; flex: 1; }
+        .ll-msg.hi { color: #a0b8c8; }
+        .ll-msg.warn { color: #ff9922; }
+        .ll-val    { color: #00d4ff44; min-width: 100px; text-align: right; flex-shrink: 0; font-size: 11px; }
+
+        /* Stats bar */
+        .stats-bar {
+            background: #080c18;
+            border-top: 1px solid #00d4ff1a;
+            padding: 6px 16px;
+            display: flex; gap: 0;
+            flex-shrink: 0;
+        }
+
+        .sstat {
+            flex: 1;
+            display: flex; align-items: center; gap: 7px;
+            border-right: 1px solid #00d4ff0e;
+            padding: 0 12px;
+        }
+
+        .sstat:first-child { padding-left: 0; }
+        .sstat:last-child  { border-right: none; }
+
+        .sstat-label { font-size: 8px; color: #405060; letter-spacing: 1px; }
+        .sstat-value { font-size: 11px; color: #00d4ff; font-weight: bold; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes hexPulse {
+            0%,100% { border-color:#00d4ff; box-shadow:0 0 8px #00d4ff44; }
+            50%      { border-color:#7b2fff; box-shadow:0 0 8px #7b2fff44; }
+        }
+        @keyframes blink {
+            0%,100% { opacity:1; }
+            50%      { opacity:0.35; }
+        }
+        @keyframes scanDown {
+            0%   { top:0; }
+            100% { top:100%; }
+        }
+        @keyframes cableFlow {
+            0%   { top:-6px; }
+            100% { top:100%; }
+        }
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(4px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes iconGlow {
+            0%,100% { filter: drop-shadow(0 0 4px #00d4ff88); }
+            50%      { filter: drop-shadow(0 0 10px #7b2fffcc); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+    <div class="logo-wrap">
+        <div class="logo-hex">⬡</div>
+        <div>
+            <div class="logo-text">FORENSICSCAN</div>
+            <div class="logo-sub">MOBILE FORENSICS SUITE v3.7.2 — AUTHORIZED SESSION</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="live-badge"><div class="live-dot"></div>LIVE CAPTURE</div>
+        <div id="clockDisplay">--:--:--</div>
+        <div>SESSION #4F2A9C</div>
+        <div style="color:#00d4ff22">|</div>
+        <div>OPERATOR: UMD</div>
+    </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+    <!-- ── LEFT: Phone ── -->
+    <div class="phone-panel">
+        <div class="panel-tag" id="panelTag">TARGET DEVICE</div>
+
+        <div class="phone-wrapper" id="phoneWrapper">
+            <div class="phone">
+                <!-- Camera -->
+                <div class="phone-camera-area">
+                    <div class="cam-dot"></div>
+                    <div class="cam-sensor"></div>
+                </div>
+
+                <!-- Side buttons -->
+                <div class="btn-right"></div>
+                <div class="btn-vol-up"></div>
+                <div class="btn-vol-dn"></div>
+
+                <!-- Screen -->
+                <div class="phone-screen">
+                    <div class="screen-scanline"></div>
+
+                    <div class="screen-statusbar">
+                        <span id="phoneTime">--:--</span>
+                        <span>▐▐▐▐ 78%</span>
+                    </div>
+
+                    <div class="screen-content">
+                        <div class="screen-icon">🔒</div>
+                        <div class="screen-title">ADB CONNECTED</div>
+                        <div class="screen-subtitle">SM-A546B · Android 13</div>
+
+                        <div class="screen-minibars">
+                            <div class="minibar">
+                                <div class="minibar-top"><span>STORAGE</span><span>32.4 GB</span></div>
+                                <div class="minibar-track"><div class="minibar-fill" style="width:25%"></div></div>
+                            </div>
+                            <div class="minibar">
+                                <div class="minibar-top"><span>RAM</span><span>4.2 GB</span></div>
+                                <div class="minibar-track"><div class="minibar-fill" style="width:52%"></div></div>
+                            </div>
+                            <div class="minibar">
+                                <div class="minibar-top"><span>CPU</span><span id="cpuVal">--</span></div>
+                                <div class="minibar-track">
+                                    <div class="minibar-fill" id="cpuBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hex-stream" id="hexStream"></div>
+                </div>
+
+                <!-- Bottom -->
+                <div class="usb-port"></div>
+                <div class="phone-homebar"></div>
+            </div>
+
+            <!-- Cable -->
+            <div class="cable-wrap">
+                <div class="cable-tube">
+                    <div class="cable-particle"></div>
+                    <div class="cable-particle"></div>
+                    <div class="cable-particle"></div>
+                </div>
+                <div class="cable-conn"></div>
+            </div>
+
+            <div class="conn-status">● USB 3.0 · AUTHORIZED</div>
+        </div>
+    </div>
+
+    <!-- ── RIGHT: Scan ── -->
+    <div class="scan-panel">
+
+        <!-- Device info bar -->
+        <div class="device-bar">
+            <div class="dstat">
+                <div class="dstat-label">DEVICE MODEL</div>
+                <div class="dstat-value">Samsung Galaxy A54</div>
+            </div>
+            <div class="dstat">
+                <div class="dstat-label">SERIAL NO</div>
+                <div class="dstat-value cyan">R58TA3X9P2K</div>
+            </div>
+            <div class="dstat">
+                <div class="dstat-label">OS / SDK</div>
+                <div class="dstat-value">Android 13 / API 33</div>
+            </div>
+            <div class="dstat">
+                <div class="dstat-label">BUILD ID</div>
+                <div class="dstat-value purple">A546BXXS5CXC3</div>
+            </div>
+            <div class="dstat">
+                <div class="dstat-label">INTERFACE</div>
+                <div class="dstat-value">ADB / USB 3.0</div>
+            </div>
+            <div class="dstat">
+                <div class="dstat-label">TRANSFER</div>
+                <div class="dstat-value cyan" id="transferSpeed">2.4 MB/s</div>
+            </div>
+        </div>
+
+        <!-- Scan content -->
+        <div class="scan-content">
+
+            <!-- Active module title -->
+            <div class="active-header">
+                <div class="active-module-name" id="activeModName">INITIALIZING...</div>
+                <div class="active-phase" id="activePhase">PHASE — / 8</div>
+            </div>
+
+            <!-- Overall progress -->
+            <div class="progress-card">
+                <div class="pc-top">
+                    <div class="pc-label">SCAN PROGRESS</div>
+                    <div style="display:flex;align-items:baseline;gap:10px">
+                        <div class="pc-info" id="progInfo">Deep scan in progress</div>
+                        <div class="pc-pct" id="overallPct">0%</div>
+                    </div>
+                </div>
+                <div class="prog-track">
+                    <div class="prog-fill" id="overallBar" style="width:0%"></div>
+                </div>
+            </div>
+
+            <!-- Modules grid -->
+            <div class="modules-grid" id="modulesGrid"></div>
+
+            <!-- Log -->
+            <div class="log-box">
+                <div class="log-top">
+                    <span>CAPTURE LOG</span>
+                    <span id="logCount">0 entries</span>
+                </div>
+                <div class="log-scroll" id="logScroll"></div>
+            </div>
+
+        </div>
+
+        <!-- Stats bar -->
+        <div class="stats-bar">
+            <div class="sstat">
+                <span class="sstat-label">FILES SCANNED</span>
+                <span class="sstat-value" id="statFiles">0</span>
+            </div>
+            <div class="sstat">
+                <span class="sstat-label">DATA READ</span>
+                <span class="sstat-value" id="statData">0 MB</span>
+            </div>
+            <div class="sstat">
+                <span class="sstat-label">PROCESSES</span>
+                <span class="sstat-value" id="statProcs">0</span>
+            </div>
+            <div class="sstat">
+                <span class="sstat-label">NET CONNS</span>
+                <span class="sstat-value" id="statConns">0</span>
+            </div>
+            <div class="sstat">
+                <span class="sstat-label">APPS AUDITED</span>
+                <span class="sstat-value" id="statApps">0</span>
+            </div>
+            <div class="sstat">
+                <span class="sstat-label">ELAPSED</span>
+                <span class="sstat-value" id="statElapsed">00:00:00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ════════════════════════════════════
+   SCAN DATA
+════════════════════════════════════ */
+const MODULES = [
+    {
+        id: 'filesystem',
+        name: 'FILE SYSTEM',
+        items: [
+            'Enumerating /sdcard/ root directory',
+            'Scanning /sdcard/DCIM/Camera/ → 847 files',
+            'Scanning /sdcard/Downloads/ → 234 items',
+            'Scanning /sdcard/WhatsApp/Media/ → 1.2 GB',
+            'Scanning /sdcard/Documents/ → 89 files',
+            'Accessing /sdcard/Android/data/ partitions',
+            'Reading /proc/mounts table',
+            'Analyzing /sys/block/sda metadata',
+            'Checking hidden directories /.trash',
+            'Scanning /sdcard/.nomedia containers',
+        ],
+        logModule: 'FILESYS ',
+        logMsgs: [
+            ['Enumerating root partition structure → /sdcard/ mounted', '', '0x2A4F inode'],
+            ['Found 847 JPEG, 23 MP4 in DCIM/Camera directory', 'hi', '1.24 GB total'],
+            ['Parsing EXIF metadata from image files...', '', '234 geotagged'],
+            ['GPS coordinates embedded in 234 photos — location data', 'warn', '⚠ GEO LEAK'],
+            ['WhatsApp media cache fully indexed: /sdcard/WhatsApp/', '', '892 files · 1.2 GB'],
+            ['/sdcard/Downloads/ scan complete — mixed file types', '', '234 files · 487 MB'],
+            ['Hidden directory detected: /.thumbnails — system cache', 'warn', '⚠ FLAGGED'],
+            ['Inode table scan complete — no corruption detected', '', '✓ OK'],
+        ]
+    },
+    {
+        id: 'appaudit',
+        name: 'APP AUDIT',
+        items: [
+            'Loading package manager database...',
+            'com.whatsapp → 18 permissions granted',
+            'com.instagram.android → 24 permissions',
+            'com.telegram.messenger → 12 permissions',
+            'com.snapchat.android → 19 permissions',
+            'com.tiktok → 31 permissions granted',
+            'Checking background services: 8 active',
+            'Auditing accessibility services',
+            'Scanning device admin privileges',
+            'Verifying APK signatures & hashes',
+        ],
+        logModule: 'APPAUDIT',
+        logMsgs: [
+            ['Package manager loaded — 47 applications installed on device', 'hi', '47 pkgs'],
+            ['com.whatsapp — READ_CONTACTS, CAMERA, MICROPHONE, STORAGE', 'warn', '18 perms ⚠'],
+            ['com.instagram.android — LOCATION access (background mode)', 'warn', '24 perms ⚠'],
+            ['com.tiktok — 31 permissions granted, 4 classified DANGEROUS', 'warn', '⚠ CRITICAL'],
+            ['Background services enumerated — 8 processes active in RAM', '', '8 active'],
+            ['Accessibility service hijack risk — 2 apps with full access', 'warn', '⚠ RISK'],
+            ['APK digital signatures verified against Play Store hashes', '', '✓ 45 / 47'],
+        ]
+    },
+    {
+        id: 'network',
+        name: 'NETWORK',
+        items: [
+            'Reading /proc/net/tcp connection table',
+            'Active: 192.168.0.1:443 [Gateway/HTTPS]',
+            'Active: 31.13.86.36:443 [WhatsApp CDN]',
+            'Active: 157.240.22.35:443 [Meta servers]',
+            'Active: 149.154.167.41:443 [Telegram]',
+            'Extracting DNS cache → 47 entries',
+            'Reading saved Wi-Fi profiles → 12 SSIDs',
+            'Checking Bluetooth pairing history',
+            'Scanning iptables NAT/filter rules',
+            'Capturing ARP cache table',
+        ],
+        logModule: 'NETWORK ',
+        logMsgs: [
+            ['Active TCP connections found via /proc/net/tcp table', 'hi', '14 sockets'],
+            ['31.13.86.36:443 — WhatsApp CDN data transfer ongoing', '', '2.4 MB/s · TLS'],
+            ['DNS cache extracted — 47 resolved domain entries', '', '47 domains'],
+            ['Saved Wi-Fi profiles read from WPA supplicant config', '', '12 SSIDs'],
+            ['Bluetooth pairing history extracted from btconfig store', '', '6 devices'],
+            ['Open raw socket PID 2341 → 443 TLS 1.3 [encrypted]', 'warn', '⚠ MONITOR'],
+        ]
+    },
+    {
+        id: 'memory',
+        name: 'MEMORY',
+        items: [
+            'Initiating memory dump: 4096 MB target',
+            'Scanning PID 1 (init) process heap',
+            'Scanning PID 847 (zygote64) heap',
+            'Scanning PID 2341 (com.whatsapp)',
+            'Scanning PID 3892 (com.instagram)',
+            'Searching encryption keys in heap space',
+            'Reading /dev/mem mapped regions',
+            'Analyzing tmpfs virtual mounts',
+            'Scanning kernel ring buffer (dmesg)',
+            'Extracting /proc/[pid]/maps data',
+        ],
+        logModule: 'MEMORY  ',
+        logMsgs: [
+            ['Memory dump initiated — target 4096 MB ARM64 architecture', 'hi', '4096 MB'],
+            ['PID 2341 (com.whatsapp) heap region mapped and captured', '', '342 MB heap'],
+            ['PID 3892 (com.instagram) heap region mapped successfully', '', '189 MB heap'],
+            ['Potential crypto key pattern detected in heap addr 0xA4F2', 'warn', '⚠ KEY LEAK'],
+            ['tmpfs virtual mount at /dev/shm analyzed — clear', '', '✓ CLEAN'],
+            ['Kernel ring buffer (dmesg) captured — 8,192 log lines', '', '8,192 lines'],
+        ]
+    },
+    {
+        id: 'browser',
+        name: 'BROWSER',
+        items: [
+            'Locating Chrome profile directory...',
+            'History database: 4,231 URLs extracted',
+            'Reading saved passwords vault',
+            'Extracting cookies: 892 records',
+            'Reading form autofill cache',
+            'Bookmarks exported: 23 items',
+            'Checking extension manifests',
+            'Search history: 678 queries found',
+            'Downloaded files list: 89 entries',
+            'WebSQL / IndexedDB scan in progress',
+        ],
+        logModule: 'BROWSER ',
+        logMsgs: [
+            ['Chrome profile located: /data/data/com.android.chrome/app_chrome', 'hi', '✓ FOUND'],
+            ['Browser history database extracted — last 30 days of activity', '', '4,231 URLs'],
+            ['Saved password vault accessed — credentials readable in clear', 'warn', '⚠ EXPOSED'],
+            ['Session cookies extracted from SQLite store — active tokens', '', '892 cookies'],
+            ['Google search queries parsed — personal topics identified', '', '678 queries'],
+            ['Autofill form cache — name, address, phone data captured', '', '34 fields'],
+        ]
+    },
+    {
+        id: 'sms',
+        name: 'SMS & CONTACTS',
+        items: [
+            'Opening contacts.db → 234 records',
+            'Extracting contact details & metadata',
+            'Reading call_logs.db → 892 entries',
+            'Opening sms.db → 1,847 messages',
+            'Parsing SMS threads: 89 found',
+            'Reading MMS attachment index',
+            'Extracting call durations & timestamps',
+            'Scanning voicemail metadata',
+            'Checking blocked numbers list',
+            'Exporting SIM phonebook data',
+        ],
+        logModule: 'SMS&CONT',
+        logMsgs: [
+            ['contacts.db opened via content provider — full read access', 'hi', '234 records'],
+            ['Call log database extracted — inbound, outbound, missed calls', '', '892 entries'],
+            ['SMS message threads parsed — full conversation history read', '', '1,847 msgs'],
+            ['MMS attachment index extracted — media files linked to SMS', '', '34 files'],
+            ['Blocked number list exported from telephony database', '', '7 numbers'],
+            ['SIM phonebook dump complete — carrier-stored contacts read', '', '✓ 12 saved'],
+        ]
+    },
+    {
+        id: 'media',
+        name: 'MEDIA FILES',
+        items: [
+            'Indexing DCIM: 847 photos catalogued',
+            'Reading EXIF GPS data: 234 geotagged',
+            'Scanning video files: 67 items (4.2 GB)',
+            'Screenshots folder: 45 items found',
+            'Audio files /sdcard/Music/: 89 tracks',
+            'Screen recordings: 12 files found',
+            'WhatsApp media cache: 1.2 GB total',
+            'Telegram media: 234 cached files',
+            'Analyzing thumbnail database',
+            'Scanning hidden .nomedia directories',
+        ],
+        logModule: 'MEDIA   ',
+        logMsgs: [
+            ['DCIM/Camera catalogued — all photos indexed with metadata', 'hi', '847 photos'],
+            ['EXIF GPS stripped from 234 images — real-world locations mapped', 'warn', '⚠ GEO DATA'],
+            ['Video files inventoried — full resolution, creation timestamps', '', '67 · 4.2 GB'],
+            ['WhatsApp received/sent media fully indexed — images & video', '', '1,204 files'],
+            ['Android thumbnail database analyzed — deleted photo ghosts', '', '910 entries'],
+            ['Hidden media folder found: /sdcard/.private/ — concealed files', 'warn', '⚠ HIDDEN'],
+        ]
+    },
+    {
+        id: 'malware',
+        name: 'MALWARE SCAN',
+        items: [
+            'Loading signature DB: 2,847,293 patterns',
+            'Scanning com.whatsapp binary hash',
+            'Scanning com.instagram binary hash',
+            'Checking for rooting tool artifacts',
+            'Scanning for spyware behavioural patterns',
+            'Checking keylogger injection signatures',
+            'Analyzing obfuscated bytecode sections',
+            'Scanning for process injection hooks',
+            'Detecting stalkerware indicators',
+            'Validating root certificate store',
+        ],
+        logModule: 'MALWARE ',
+        logMsgs: [
+            ['Signature database loaded — pattern matching engine ready', 'hi', '2,847,293 sigs'],
+            ['Scanning all 47 installed APK binaries for known threats', '', '47 targets'],
+            ['Bytecode obfuscation detected in 2 applications — flagged', 'warn', '⚠ 2 apps'],
+            ['Rootkit artifact scan complete — no kernel hooks detected', '', '✓ CLEAN'],
+            ['SSL certificate store anomaly detected — cert #7 mismatch', 'warn', '⚠ CERT ERR'],
+            ['Behavioural analysis complete — 0 confirmed active threats', '', '✓ 0 threats'],
+        ]
+    },
+];
+
+/* ════════════════════════════════════
+   STATE
+════════════════════════════════════ */
+const state = {
+    startTime: Date.now(),
+    modIdx: 0,        // current module index
+    itemIdx: 0,       // current item index within module
+    itemPct: 0,       // 0..100 progress within item
+    modPcts: new Array(MODULES.length).fill(0),
+    modStatus: ['scanning', ...new Array(MODULES.length - 1).fill('queued')],
+    logLines: [],
+    logCount: 0,
+    loopCount: 0,
+    // stats
+    files: 0,
+    dataKB: 0,
+    procs: 47,
+    conns: 14,
+    apps: 0,
+};
+
+/* ════════════════════════════════════
+   BUILD UI
+════════════════════════════════════ */
+function buildModulesGrid() {
+    const grid = document.getElementById('modulesGrid');
+    grid.innerHTML = '';
+    MODULES.forEach((m, i) => {
+        const card = document.createElement('div');
+        card.className = 'mod-card';
+        card.id = 'mod-' + m.id;
+        card.innerHTML = `
+            <div class="mod-top">
+                <div class="mod-name">${m.name}</div>
+                <div class="mod-badge queued" id="badge-${m.id}">QUEUED</div>
+            </div>
+            <div class="mod-prog-track">
+                <div class="mod-prog-fill queued" id="fill-${m.id}" style="width:0%"></div>
+            </div>
+            <div class="mod-current" id="cur-${m.id}">Waiting...</div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+/* ════════════════════════════════════
+   LOG
+════════════════════════════════════ */
+const MAX_LOG_LINES = 18;
+
+function addLogLine(timeStr, mod, msg, cls, val) {
+    const scroll = document.getElementById('logScroll');
+    const div = document.createElement('div');
+    div.className = 'log-line';
+    div.innerHTML = `<span class="ll-time">${timeStr}</span><span class="ll-mod">[${mod}]</span><span class="ll-msg ${cls}">${msg}</span><span class="ll-val">${val || ''}</span>`;
+    scroll.appendChild(div);
+    state.logLines.push(div);
+    state.logCount++;
+
+    if (state.logLines.length > MAX_LOG_LINES) {
+        const old = state.logLines.shift();
+        old.remove();
+    }
+
+    document.getElementById('logCount').textContent = state.logCount.toLocaleString() + ' entries';
+}
+
+let logMsgPointers = new Array(MODULES.length).fill(0);
+
+function emitLog() {
+    const m = MODULES[state.modIdx];
+    const ptr = logMsgPointers[state.modIdx] % m.logMsgs.length;
+    const [msg, cls, val] = m.logMsgs[ptr];
+    logMsgPointers[state.modIdx]++;
+
+    const now = new Date();
+    const ts = now.toTimeString().slice(0,8) + '.' + String(now.getMilliseconds()).padStart(3,'0').slice(0,2);
+    addLogLine(ts, m.logModule, msg, cls, val);
+}
+
+/* ════════════════════════════════════
+   MAIN TICK
+════════════════════════════════════ */
+const ITEM_SPEED = 1.8;   // % per 100ms → item completes in ~55 ticks = 5.5 sec
+
+function tick() {
+    state.itemPct += ITEM_SPEED;
+
+    if (state.itemPct >= 100) {
+        state.itemPct = 0;
+        state.itemIdx++;
+        const m = MODULES[state.modIdx];
+
+        if (state.itemIdx >= m.items.length) {
+            // Module done
+            state.itemIdx = 0;
+            state.modStatus[state.modIdx] = 'done';
+            state.modPcts[state.modIdx] = 100;
+
+            state.modIdx++;
+            if (state.modIdx >= MODULES.length) {
+                // All modules done — restart
+                state.modIdx = 0;
+                state.loopCount++;
+                state.modStatus = new Array(MODULES.length).fill('queued');
+                document.getElementById('progInfo').textContent =
+                    'Extended scan — pass ' + (state.loopCount + 1);
+            }
+            state.modStatus[state.modIdx] = 'scanning';
+        }
+    }
+
+    // Module progress
+    const m = MODULES[state.modIdx];
+    const totalItems = m.items.length;
+    state.modPcts[state.modIdx] =
+        ((state.itemIdx / totalItems) + (state.itemPct / 100 / totalItems)) * 100;
+
+    // Overall progress
+    let done = 0, total = 0;
+    MODULES.forEach((mod, i) => {
+        total += mod.items.length;
+        if (i < state.modIdx) done += mod.items.length;
+    });
+    done += state.itemIdx + state.itemPct / 100;
+    const overall = Math.min((done / total) * 100, 99.5);
+
+    updateUI(overall);
+
+    // Increment stats
+    state.files    += Math.floor(Math.random() * 4);
+    state.dataKB   += Math.random() * 80 + 20;
+    state.procs     = 47 + Math.floor(Math.random() * 5);
+    state.conns     = 14 + Math.floor(Math.random() * 3);
+    state.apps      = Math.min(47, state.apps + (state.modIdx === 1 ? 1 : 0));
+}
+
+/* ════════════════════════════════════
+   UPDATE UI
+════════════════════════════════════ */
+function updateUI(overall) {
+    const m = MODULES[state.modIdx];
+
+    // Header
+    document.getElementById('activeModName').textContent = m.name + ' ANALYSIS';
+    document.getElementById('activePhase').textContent =
+        'PHASE ' + (state.modIdx + 1) + ' / ' + MODULES.length +
+        (state.loopCount > 0 ? ' (PASS ' + (state.loopCount + 1) + ')' : '');
+
+    // Overall bar
+    document.getElementById('overallPct').textContent = overall.toFixed(1) + '%';
+    document.getElementById('overallBar').style.width = overall + '%';
+
+    // Module cards
+    MODULES.forEach((mod, i) => {
+        const status = state.modStatus[i];
+        const card   = document.getElementById('mod-' + mod.id);
+        const badge  = document.getElementById('badge-' + mod.id);
+        const fill   = document.getElementById('fill-' + mod.id);
+        const cur    = document.getElementById('cur-' + mod.id);
+
+        // Card class
+        card.className = 'mod-card ' + (status === 'scanning' ? 'active' : status === 'done' ? 'done' : '');
+
+        // Badge
+        badge.className = 'mod-badge ' + status;
+        badge.textContent = status === 'scanning' ? 'SCANNING' : status === 'done' ? 'DONE' : 'QUEUED';
+
+        // Fill
+        fill.className = 'mod-prog-fill ' + (status === 'done' ? 'done' : status === 'scanning' ? 'scanning' : '');
+        fill.style.width = (status === 'done' ? 100 : state.modPcts[i]) + '%';
+
+        // Current item
+        if (status === 'scanning') {
+            cur.textContent = mod.items[state.itemIdx] || '';
+        } else if (status === 'done') {
+            cur.textContent = '✓ ' + mod.items[mod.items.length - 1];
+        } else {
+            cur.textContent = 'Waiting...';
+        }
+    });
+
+    // Stats
+    document.getElementById('statFiles').textContent = state.files.toLocaleString();
+    document.getElementById('statData').textContent  = (state.dataKB / 1024).toFixed(1) + ' MB';
+    document.getElementById('statProcs').textContent = state.procs;
+    document.getElementById('statConns').textContent = state.conns;
+    document.getElementById('statApps').textContent  = 47;
+
+    // Elapsed
+    const sec = Math.floor((Date.now() - state.startTime) / 1000);
+    const h = String(Math.floor(sec / 3600)).padStart(2,'0');
+    const mn = String(Math.floor((sec % 3600) / 60)).padStart(2,'0');
+    const s  = String(sec % 60).padStart(2,'0');
+    document.getElementById('statElapsed').textContent = h + ':' + mn + ':' + s;
+}
+
+/* ════════════════════════════════════
+   CLOCK
+════════════════════════════════════ */
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clockDisplay').textContent = now.toTimeString().slice(0,8);
+    document.getElementById('phoneTime').textContent    = now.toTimeString().slice(0,5);
+}
+
+/* ════════════════════════════════════
+   HEX STREAM (phone screen)
+════════════════════════════════════ */
+const HEX = '0123456789ABCDEF';
+function randHex(n) {
+    let s = '';
+    for (let i = 0; i < n; i++) s += HEX[Math.floor(Math.random()*16)];
+    return s;
+}
+
+function updateHexStream() {
+    const chunks = [];
+    for (let i = 0; i < 5; i++) chunks.push(randHex(4));
+    document.getElementById('hexStream').textContent = chunks.join(' ') + ' ' + randHex(4) + '...';
+}
+
+/* ════════════════════════════════════
+   CPU BAR (phone screen)
+════════════════════════════════════ */
+function updateCpuBar() {
+    const pct = 25 + Math.floor(Math.random() * 45);
+    document.getElementById('cpuVal').textContent = pct + '%';
+    document.getElementById('cpuBar').style.width = pct + '%';
+}
+
+/* ════════════════════════════════════
+   TRANSFER SPEED
+════════════════════════════════════ */
+function updateSpeed() {
+    const s = (1.8 + Math.random() * 1.6).toFixed(1);
+    document.getElementById('transferSpeed').textContent = s + ' MB/s';
+}
+
+/* ════════════════════════════════════
+   PHONE APPEAR (10 seconds)
+════════════════════════════════════ */
+function showPhone() {
+    const wrapper = document.getElementById('phoneWrapper');
+    const tag     = document.getElementById('panelTag');
+    wrapper.classList.add('visible');
+    tag.style.opacity = '1';
+}
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+buildModulesGrid();
+updateClock();
+updateHexStream();
+
+// Phone appears after 10 seconds
+setTimeout(showPhone, 10000);
+
+// Tick every 100ms (main scan engine)
+setInterval(tick, 100);
+
+// Clock every second
+setInterval(updateClock, 1000);
+
+// Log every 2 seconds
+setInterval(emitLog, 2000);
+
+// Hex stream every 400ms
+setInterval(updateHexStream, 400);
+
+// CPU bar every 800ms
+setInterval(updateCpuBar, 800);
+
+// Transfer speed every 1.5s
+setInterval(updateSpeed, 1500);
+
+// Initial log entries
+setTimeout(() => {
+    const now = new Date().toTimeString().slice(0,8);
+    addLogLine(now + '.00', 'SYSTEM  ', 'ForensicScan Pro v3.7.2 initializing — all modules loaded', 'hi', 'v3.7.2');
+}, 200);
+setTimeout(() => {
+    const now = new Date().toTimeString().slice(0,8);
+    addLogLine(now + '.41', 'SYSTEM  ', 'ADB interface detected on USB bus — high-speed mode active', 'hi', 'USB 3.0');
+}, 700);
+setTimeout(() => {
+    const now = new Date().toTimeString().slice(0,8);
+    addLogLine(now + '.88', 'SYSTEM  ', 'Device authorization granted — Samsung SM-A546B · Android 13', '', '✓ AUTH OK');
+}, 1200);
+setTimeout(() => {
+    const now = new Date().toTimeString().slice(0,8);
+    addLogLine(now + '.12', 'SYSTEM  ', 'Full forensic scan engine started — 8 modules queued', '', '8 modules');
+}, 1800);
+</script>
+</body>
+</html>

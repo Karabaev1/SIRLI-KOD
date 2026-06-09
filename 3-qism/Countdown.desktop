@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Countdown Timer
+Comment=Mission countdown
+Exec=python3 /home/saadiy/Documents/sirli_kod/3-qism/countdown.py
+Icon=appointment-soon
+Terminal=false
+Categories=Utility;
