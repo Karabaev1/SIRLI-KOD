@@ -8,21 +8,15 @@
 html, body { height: 100%; overflow: hidden; }
 
 body {
-  background: #1e1e1e;
-  color: #d4d4d4;
+  background: #1e1e1e; color: #d4d4d4;
   font-family: 'Segoe UI', Ubuntu, sans-serif;
-  font-size: 13px;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  font-size: 13px; display: flex; flex-direction: column; height: 100vh;
 }
 
 /* ── TITLE BAR ─────────────────────────────── */
 .titlebar {
-  background: #323233;
-  height: 30px;
-  display: flex; align-items: center;
-  flex-shrink: 0; user-select: none;
+  background: #323233; height: 30px;
+  display: flex; align-items: center; flex-shrink: 0; user-select: none;
 }
 .tb-dots { display: flex; gap: 7px; padding: 0 14px; }
 .tb-dot  { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
@@ -32,8 +26,7 @@ body {
 /* ── MENU BAR ──────────────────────────────── */
 .menubar {
   background: #3c3c3c; height: 24px;
-  display: flex; align-items: center; padding: 0 6px; gap: 2px;
-  flex-shrink: 0;
+  display: flex; align-items: center; padding: 0 6px; gap: 2px; flex-shrink: 0;
 }
 .mi { padding: 2px 8px; font-size: 12px; color: #cccccc; border-radius: 3px; cursor: default; }
 .mi:hover { background: #5a5a5a; }
@@ -45,8 +38,7 @@ body {
 .actbar {
   width: 48px; background: #333333;
   display: flex; flex-direction: column; align-items: center;
-  padding-top: 2px; flex-shrink: 0;
-  border-right: 1px solid #252526;
+  padding-top: 2px; flex-shrink: 0; border-right: 1px solid #252526;
 }
 .ai {
   width: 48px; height: 48px;
@@ -77,8 +69,7 @@ body {
 .tr {
   display: flex; align-items: center;
   height: 22px; padding-right: 6px;
-  font-size: 13px; color: #cccccc;
-  cursor: pointer; white-space: nowrap;
+  font-size: 13px; color: #cccccc; cursor: pointer; white-space: nowrap;
 }
 .tr:hover { background: #2a2d2e; }
 .tr.act   { background: #37373d; }
@@ -102,7 +93,6 @@ body {
 .tdot { width: 8px; height: 8px; border-radius: 50%; background: #e2c08d; }
 .tico { font-size: 12px; }
 .tcls { font-size: 11px; color: #858585; }
-.tcls:hover { color: #cccccc; }
 
 .breadcrumb {
   background: #1e1e1e; padding: 4px 14px;
@@ -119,29 +109,23 @@ body {
 .code-wrap::-webkit-scrollbar-thumb { background: #424242; border-radius: 4px; }
 
 #gutter {
-  padding: 8px 12px 8px 18px; text-align: right;
-  color: #858585; font-family: 'JetBrains Mono','Fira Code','Cascadia Code','Consolas',monospace;
-  font-size: 14px; line-height: 22px;
-  user-select: none; flex-shrink: 0; min-width: 50px;
+  padding: 8px 12px 8px 18px; text-align: right; color: #858585;
+  font-family: 'JetBrains Mono','Fira Code','Cascadia Code','Consolas',monospace;
+  font-size: 14px; line-height: 22px; user-select: none; flex-shrink: 0; min-width: 50px;
 }
 .ln { min-height: 22px; }
 
 #code {
-  padding: 8px 14px; flex: 1;
-  white-space: pre; line-height: 22px; font-size: 14px;
+  padding: 8px 14px; flex: 1; white-space: pre; line-height: 22px; font-size: 14px;
   font-family: 'JetBrains Mono','Fira Code','Cascadia Code','Consolas','Courier New',monospace;
   color: #d4d4d4; outline: none;
 }
 
-/* ── SYNTAX COLORS (VS Code Dark+) ────────── */
-.kw  { color: #569CD6; }
-.kw2 { color: #C586C0; }
-.fn  { color: #DCDCAA; }
-.bi  { color: #DCDCAA; }
-.st  { color: #CE9178; }
-.cm  { color: #6A9955; }
-.nm  { color: #B5CEA8; }
-.id  { color: #9CDCFE; }
+/* ── SYNTAX COLORS ─────────────────────────── */
+.kw  { color: #569CD6; }  .kw2 { color: #C586C0; }
+.fn  { color: #DCDCAA; }  .bi  { color: #DCDCAA; }
+.st  { color: #CE9178; }  .cm  { color: #6A9955; }
+.nm  { color: #B5CEA8; }  .id  { color: #9CDCFE; }
 .op  { color: #D4D4D4; }
 
 /* ── CURSOR ────────────────────────────────── */
@@ -165,9 +149,9 @@ body {
 }
 @keyframes pulse { from{opacity:.4} to{opacity:1} }
 
-/* ── TERMINAL ──────────────────────────────── */
+/* ── TERMINAL PANEL ────────────────────────── */
 .panel {
-  height: 185px; background: #1e1e1e;
+  height: 210px; background: #1e1e1e;
   border-top: 1px solid #2a2a2a;
   display: flex; flex-direction: column; flex-shrink: 0;
 }
@@ -189,12 +173,14 @@ body {
 .pt-actions span:hover { color: #cccccc; }
 
 .term-body {
-  flex: 1; overflow-y: auto; padding: 5px 14px;
+  flex: 1; overflow-y: auto; padding: 6px 14px;
   font-family: 'JetBrains Mono','Fira Code','Consolas',monospace;
-  font-size: 13px; line-height: 1.6;
+  font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-all;
 }
 .term-body::-webkit-scrollbar { width: 4px; }
 .term-body::-webkit-scrollbar-thumb { background: #424242; }
+
+/* terminal prompt colors */
 .t-user  { color: #4ec9b0; } .t-host { color: #4ec9b0; }
 .t-path  { color: #DCDCAA; } .t-dollar { color: #d4d4d4; }
 .t-cur   {
@@ -202,6 +188,15 @@ body {
   background: #aeafad; vertical-align: text-bottom;
   animation: blink 1.1s step-end infinite;
 }
+
+/* terminal output line colors */
+.o-cmd    { color: #e8ecf4; }
+.o-info   { color: #6e7fa0; }
+.o-sep    { color: #2a3040; }
+.o-try    { color: #DCDCAA; }
+.o-danger { color: #e74c3c; font-weight: bold; letter-spacing: .3px; }
+.o-warn   { color: #f59e0b; }
+.o-blank  { display: block; height: 4px; }
 
 /* ── STATUS BAR ────────────────────────────── */
 .statusbar {
@@ -310,25 +305,23 @@ body {
 
 <script>
 // ═══════════════════════════════════════════════════════════
-//  SCENES  —  add new scenes here for future episodes
-//  Usage:  code_editor.html?scene=phishing
-//          code_editor.html?scene=brute_force   (default)
+//  SCENES
 // ═══════════════════════════════════════════════════════════
 const SCENES = {
 
-  // ── SCENE 1: Brute Force ──────────────────────────────
+  // ── Brute Force ──────────────────────────────────────────
   brute_force: {
     file:    'brute_force.py',
     project: 'azim_tools',
     tree: [
-      { type:'folder', name:'core',       indent:1, open:true  },
-      { type:'file',   name:'scanner.py', indent:2, dim:true   },
-      { type:'file',   name:'utils.py',   indent:2, dim:true   },
-      { type:'folder', name:'wordlists',  indent:1, open:true  },
-      { type:'file',   name:'rockyou.txt',indent:2, dim:true   },
-      { type:'file',   name:'passwords.txt',indent:2,dim:true  },
-      { type:'file',   name:'brute_force.py', indent:1, active:true, modified:true },
-      { type:'file',   name:'config.py',  indent:1, dim:true   },
+      { type:'folder', name:'core',        indent:1, open:true  },
+      { type:'file',   name:'scanner.py',  indent:2, dim:true   },
+      { type:'file',   name:'utils.py',    indent:2, dim:true   },
+      { type:'folder', name:'wordlists',   indent:1, open:true  },
+      { type:'file',   name:'rockyou.txt', indent:2, dim:true   },
+      { type:'file',   name:'passwords.txt',indent:2,dim:true   },
+      { type:'file',   name:'brute_force.py',indent:1,active:true,modified:true },
+      { type:'file',   name:'config.py',   indent:1, dim:true   },
     ],
     tabs: [
       { name:'brute_force.py', active:true, modified:true },
@@ -386,20 +379,39 @@ const SCENES = {
       '    if result:',
       '        print(f"[+] Credentials: {USERNAME}:{result}")',
     ],
+
+    // ── Terminal output after Enter ──────────────────────
+    run_output: [
+      { text: '[*] Target   : http://192.168.1.10/login',  cls: 'info',   gap: 280 },
+      { text: '[*] Username : admin',                       cls: 'info',   gap: 280 },
+      { text: '[*] Wordlist : 150 passwords loaded',        cls: 'info',   gap: 280 },
+      { text: '────────────────────────────────────────',   cls: 'sep',    gap: 320 },
+      { text: '',                                           cls: 'blank',  gap: 180 },
+      { text: '  [1/150]  Trying: admin123',                cls: 'try',    gap: 650 },
+      { text: '  ⛔  DANGER  —  Authentication failed',     cls: 'danger', gap: 900 },
+      { text: '',                                           cls: 'blank',  gap: 280 },
+      { text: '  [2/150]  Trying: password',                cls: 'try',    gap: 650 },
+      { text: '  ⛔  DANGER  —  Authentication failed',     cls: 'danger', gap: 900 },
+      { text: '',                                           cls: 'blank',  gap: 280 },
+      { text: '  [3/150]  Trying: letmein',                 cls: 'try',    gap: 650 },
+      { text: '  ⛔  DANGER  —  Authentication failed',     cls: 'danger', gap: 900 },
+      { text: '',                                           cls: 'blank',  gap: 380 },
+      { text: '[-] Session terminated. Too many failed attempts.', cls: 'warn', gap: 0 },
+    ],
   },
 
-  // ── SCENE 2: Phishing Generator ───────────────────────
+  // ── Phishing Generator ───────────────────────────────────
   phishing: {
     file:    'phishing_gen.py',
     project: 'azim_tools',
     tree: [
-      { type:'folder', name:'templates',   indent:1, open:true  },
-      { type:'file',   name:'login.html',  indent:2, dim:true   },
-      { type:'file',   name:'style.css',   indent:2, dim:true   },
-      { type:'folder', name:'logs',        indent:1, open:false },
-      { type:'file',   name:'phishing_gen.py', indent:1, active:true, modified:true },
-      { type:'file',   name:'server.py',   indent:1, dim:true   },
-      { type:'file',   name:'config.py',   indent:1, dim:true   },
+      { type:'folder', name:'templates',      indent:1, open:true  },
+      { type:'file',   name:'login.html',     indent:2, dim:true   },
+      { type:'file',   name:'style.css',      indent:2, dim:true   },
+      { type:'folder', name:'logs',           indent:1, open:false },
+      { type:'file',   name:'phishing_gen.py',indent:1,active:true,modified:true },
+      { type:'file',   name:'server.py',      indent:1, dim:true   },
+      { type:'file',   name:'config.py',      indent:1, dim:true   },
     ],
     tabs: [
       { name:'phishing_gen.py', active:true, modified:true },
@@ -455,6 +467,13 @@ const SCENES = {
       '    print(f"[*] Redirect -> {TARGET_URL}")',
       '    app.run(host="0.0.0.0", port=8080, debug=False)',
     ],
+    run_output: [
+      { text: '[*] Phishing server starting...',      cls: 'info',  gap: 350 },
+      { text: '[*] Logs     -> logs/captured.txt',    cls: 'info',  gap: 350 },
+      { text: '[*] Redirect -> https://instagram.com',cls: 'info',  gap: 350 },
+      { text: ' * Running on http://0.0.0.0:8080',    cls: 'try',   gap: 400 },
+      { text: ' * Press CTRL+C to quit',               cls: 'sep',   gap: 0   },
+    ],
   },
 
 };
@@ -466,12 +485,11 @@ const params    = new URLSearchParams(window.location.search);
 const sceneName = params.get('scene') || 'brute_force';
 const scene     = SCENES[sceneName] || SCENES['brute_force'];
 
-// Title bar
 document.getElementById('winTitle').textContent =
   `${scene.file} — ${scene.project} — Visual Studio Code`;
 document.title = document.getElementById('winTitle').textContent;
 
-// ── File tree ────────────────────────────────
+// File tree
 const treeEl = document.getElementById('fileTree');
 let treeHTML = `
   <div class="tr" style="padding-left:4px">
@@ -480,54 +498,50 @@ let treeHTML = `
       ${scene.project.toUpperCase()}
     </span>
   </div>`;
-
 for (const item of scene.tree) {
   const pad = item.indent * 14 + 'px';
   const dim = item.dim ? 'color:#888' : '';
   if (item.type === 'folder') {
-    const arrow = item.open ? '▾' : '▸';
     treeHTML += `
       <div class="tr" style="padding-left:${pad}">
-        <div class="tr-arrow">${arrow}</div>
-        <span class="tr-icon">📁</span>
-        <span>${item.name}</span>
+        <div class="tr-arrow">${item.open ? '▾' : '▸'}</div>
+        <span class="tr-icon">📁</span><span>${item.name}</span>
       </div>`;
   } else {
-    const activeClass = item.active ? 'act' : '';
-    const mod = item.modified
-      ? '<div class="tr-mod"></div>' : '';
     treeHTML += `
-      <div class="tr ${activeClass}" style="padding-left:${pad}">
+      <div class="tr ${item.active ? 'act' : ''}" style="padding-left:${pad}">
         <div class="tr-arrow"></div>
         <span class="tr-icon">🐍</span>
         <span style="${dim}">${item.name}</span>
-        ${mod}
+        ${item.modified ? '<div class="tr-mod"></div>' : ''}
       </div>`;
   }
 }
 treeEl.innerHTML = treeHTML;
 
-// ── Tabs ─────────────────────────────────────
-const tabBar = document.getElementById('tabBar');
-tabBar.innerHTML = scene.tabs.map(t => `
+// Tabs
+document.getElementById('tabBar').innerHTML = scene.tabs.map(t => `
   <div class="tab ${t.active ? 'on' : ''}">
     ${t.modified ? '<span class="tdot"></span>' : ''}
-    <span class="tico">🐍</span>
-    ${t.name}
+    <span class="tico">🐍</span>${t.name}
     <span class="tcls">×</span>
   </div>`).join('');
 
-// ── Breadcrumb ───────────────────────────────
+// Breadcrumb
 document.getElementById('breadcrumb').innerHTML =
   `${scene.project} &nbsp;›&nbsp; <span style="color:#ccc">${scene.file}</span>`;
 
-// ── Terminal prompt ───────────────────────────
-document.getElementById('termBody').innerHTML = `
-  <span class="t-user">azim</span><span style="color:#858">@</span>
-  <span class="t-host">kali</span><span class="t-dollar">:</span>
-  <span class="t-path">~/${scene.project}</span>
-  <span class="t-dollar">$ </span>
-  <span class="t-cur"></span>`;
+// Terminal initial prompt
+const PROMPT_HTML =
+  `<span class="t-user">azim</span>` +
+  `<span style="color:#858">@</span>` +
+  `<span class="t-host">kali</span>` +
+  `<span class="t-dollar">:</span>` +
+  `<span class="t-path">~/${scene.project}</span>` +
+  `<span class="t-dollar">$ </span>`;
+
+document.getElementById('termBody').innerHTML =
+  PROMPT_HTML + '<span class="t-cur"></span>';
 
 // ═══════════════════════════════════════════════════════════
 //  TOKENIZER
@@ -541,8 +555,7 @@ const BI  = new Set(['print','len','range','str','int','float','list',
   'dict','set','open','type','isinstance','enumerate','zip','map',
   'filter','sorted','sum','min','max','input','repr','format','bytes',
   'bool','tuple','hasattr','getattr','setattr','any','all','next',
-  'iter','vars','dir','id','hex','oct','bin','abs','round','exists',
-  'makedirs','strftime']);
+  'iter','vars','dir','id','hex','oct','bin','abs','round','makedirs']);
 
 function tokenize(code) {
   const out = [];
@@ -552,7 +565,6 @@ function tokenize(code) {
   while (i < code.length) {
     const ch = code[i];
 
-    // f-string
     if ((ch === 'f' || ch === 'F') && i+1 < code.length &&
         (code[i+1] === '"' || code[i+1] === "'")) {
       const q = code[i+1]; let s = ch+q; i += 2;
@@ -564,7 +576,6 @@ function tokenize(code) {
       push(s, 'st'); continue;
     }
 
-    // string
     if (ch === '"' || ch === "'") {
       const q = ch;
       if (i+2 < code.length && code[i+1]===q && code[i+2]===q) {
@@ -585,14 +596,12 @@ function tokenize(code) {
       push(s, 'st'); continue;
     }
 
-    // comment
     if (ch === '#') {
       let s = '';
       while (i < code.length && code[i] !== '\n') s += code[i++];
       push(s, 'cm'); continue;
     }
 
-    // identifier / keyword
     if (/[a-zA-Z_]/.test(ch)) {
       let w = '';
       while (i < code.length && /[a-zA-Z0-9_]/.test(code[i])) w += code[i++];
@@ -610,7 +619,6 @@ function tokenize(code) {
       continue;
     }
 
-    // number
     if (/[0-9]/.test(ch)) {
       let n = '';
       while (i < code.length && /[0-9.eE]/.test(code[i])) n += code[i++];
@@ -629,11 +637,10 @@ function expand(tokens) {
   return arr;
 }
 
-const CODE  = scene.lines.join('\n');
-const CHARS = expand(tokenize(CODE));
+const CHARS = expand(tokenize(scene.lines.join('\n')));
 
 // ═══════════════════════════════════════════════════════════
-//  DOM TYPING
+//  EDITOR DOM
 // ═══════════════════════════════════════════════════════════
 const codeEl = document.getElementById('code');
 const gutter = document.getElementById('gutter');
@@ -641,10 +648,9 @@ const cursor = document.getElementById('cur');
 const hintEl = document.getElementById('hint');
 const slEl   = document.getElementById('sl');
 
-let lineCount = 1;
-let colCount  = 1;
+let lineCount = 1, colCount = 1;
 let lastSpan  = null;
-let idx       = 0;
+let charIdx   = 0;
 
 function updateGutter() {
   let h = '';
@@ -657,9 +663,7 @@ function addChar(ch, cls) {
     const sp = document.createElement('span');
     sp.className = 'op'; sp.textContent = '\n';
     codeEl.insertBefore(sp, cursor);
-    lastSpan = sp;
-    lineCount++; colCount = 1;
-    updateGutter();
+    lastSpan = sp; lineCount++; colCount = 1; updateGutter();
   } else {
     if (lastSpan && lastSpan.className === cls) {
       lastSpan.textContent += ch;
@@ -676,32 +680,104 @@ function addChar(ch, cls) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  KEYPRESS  →  1 KEYPRESS = 1 CHARACTER
+//  PHASE SYSTEM
+//  typing  → ready (all code typed, waiting for Enter)
+//  running → playing terminal output
+//  done    → finished
 // ═══════════════════════════════════════════════════════════
+let phase = 'typing';
+
+// Keys that don't advance typing
 const SKIP = new Set([
-  'Shift','Control','Alt','Meta','CapsLock','Tab',
+  'Shift','Control','Alt','Meta','CapsLock',
   'ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
   'Escape','Home','End','PageUp','PageDown',
-  'Insert','PrintScreen','ScrollLock','Pause',
-  'ContextMenu','NumLock','F1','F2','F3','F4','F5',
-  'F6','F7','F8','F9','F10','F11','F12',
+  'Insert','PrintScreen','ScrollLock','Pause','ContextMenu',
+  'NumLock','F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
 ]);
 
 document.addEventListener('keydown', e => {
   if (SKIP.has(e.key)) return;
 
-  if (idx === 0) hintEl.style.display = 'none';
+  if (phase === 'typing') {
+    if (charIdx === 0) hintEl.style.display = 'none';
 
-  if (idx < CHARS.length) {
-    addChar(CHARS[idx].ch, CHARS[idx].cls);
-    idx++;
-  }
+    if (charIdx < CHARS.length) {
+      addChar(CHARS[charIdx].ch, CHARS[charIdx].cls);
+      charIdx++;
+    }
 
-  // Finished typing
-  if (idx >= CHARS.length) {
-    cursor.style.display = 'none';
+    // All code typed → switch to ready
+    if (charIdx >= CHARS.length) {
+      cursor.style.display = 'none';
+      phase = 'ready';
+      hintEl.textContent = 'Press Enter to run the script...';
+      hintEl.style.display = 'block';
+    }
+
+  } else if (phase === 'ready') {
+    if (e.key === 'Enter') {
+      phase = 'running';
+      hintEl.style.display = 'none';
+      runScript();
+    }
   }
+  // 'running' and 'done' phases: ignore all keys
 });
+
+// ═══════════════════════════════════════════════════════════
+//  RUN SCRIPT — terminal animation
+// ═══════════════════════════════════════════════════════════
+function runScript() {
+  const termEl = document.getElementById('termBody');
+  const cmd    = `python3 ${scene.file}`;
+
+  // Show prompt + command being typed
+  termEl.innerHTML = PROMPT_HTML + `<span id="tcmd"></span>`;
+
+  let ci = 0;
+  function typeCmd() {
+    const el = document.getElementById('tcmd');
+    if (!el) return;
+    if (ci < cmd.length) {
+      el.textContent += cmd[ci++];
+      setTimeout(typeCmd, 52 + Math.random() * 30);
+    } else {
+      // Hit Enter — add newline and start output
+      el.insertAdjacentText('afterend', '\n');
+      setTimeout(() => playOutput(0), 280);
+    }
+  }
+  typeCmd();
+
+  // Output lines one by one
+  function playOutput(i) {
+    if (i >= scene.run_output.length) {
+      // Final prompt after a short pause
+      setTimeout(() => {
+        termEl.insertAdjacentHTML('beforeend',
+          '\n' + PROMPT_HTML + '<span class="t-cur"></span>');
+        termEl.scrollTop = termEl.scrollHeight;
+        phase = 'done';
+      }, 550);
+      return;
+    }
+
+    const item = scene.run_output[i];
+
+    if (item.cls === 'blank') {
+      termEl.insertAdjacentText('beforeend', '\n');
+    } else {
+      const span = document.createElement('span');
+      span.className = `o-${item.cls}`;
+      span.textContent = item.text + '\n';
+      termEl.appendChild(span);
+    }
+
+    termEl.scrollTop = termEl.scrollHeight;
+    setTimeout(() => playOutput(i + 1), item.gap || 400);
+  }
+}
 </script>
 </body>
 </html>
